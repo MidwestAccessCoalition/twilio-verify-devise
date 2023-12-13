@@ -16,7 +16,7 @@ Please direct any questions to [Twilio Support](https://support.twilio.com/hc/en
 
 ---
 
-# Authy Devise [![Build Status](https://github.com/twilio/authy-devise/workflows/build/badge.svg)](https://github.com/twilio/authy-devise/actions)
+# Authy Devise [![Build Status](https://github.com/MidwestAccessCoalition/twilio-verify-devise/workflows/build/badge.svg)](https://github.com/MidwestAccessCoalition/twilio-verify-devise/actions)
 
 This is a [Devise](https://github.com/plataformatec/devise) extension to add [Two-Factor Authentication with Authy](https://www.twilio.com/docs/authy) to your Rails application.
 
@@ -47,7 +47,7 @@ Create an [Authy Application in the Twilio console](https://www.twilio.com/conso
 
 ## Demo
 
-See [this repo for a full demo of using `authy-devise`](https://github.com/twilio/authy-devise-demo).
+See [this repo for a full demo of using `authy-devise`](https://github.com/MidwestAccessCoalition/twilio-verify-devise-demo).
 
 ## Getting started
 
@@ -236,7 +236,7 @@ This will display a QR code on the verification screen (you still need to take a
 
 In Rails 5 `protect_from_forgery` is no longer prepended to the `before_action` chain. If you call `authenticate_user` before `protect_from_forgery` your request will result in a "Can't verify CSRF token authenticity" error.
 
-To remedy this, add `prepend: true` to your `protect_from_forgery` call, like in this example from the [Authy Devise demo app](https://github.com/twilio/authy-devise-demo):
+To remedy this, add `prepend: true` to your `protect_from_forgery` call, like in this example from the [Authy Devise demo app](https://github.com/MidwestAccessCoalition/twilio-verify-devise-demo):
 
 ```ruby
 class ApplicationController < ActionController::Base

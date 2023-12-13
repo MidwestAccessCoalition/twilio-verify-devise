@@ -711,7 +711,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
         describe "with more than one user using the same authy_id" do
           # It is valid for more than one user to share an authy_id
-          # https://github.com/twilio/authy-devise/issues/143
+          # https://github.com/MidwestAccessCoalition/twilio-verify-devise/issues/143
           before(:each) do
             @other_user = create(:authy_user, :authy_id => user.authy_id)
             cookies.signed[:remember_device] = {
