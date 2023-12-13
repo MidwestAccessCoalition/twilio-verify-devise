@@ -2,7 +2,7 @@
 
 Rails.application.routes.draw do
   devise_for :users
-  devise_for :lockable_users, # for testing authy_lockable
+  devise_for :lockable_users, # for testing twilio_verify_lockable
     class: 'LockableUser',
     :path_names => {
       :verify_twilio_verify => "/verify-token",
