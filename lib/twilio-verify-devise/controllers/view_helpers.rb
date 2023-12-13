@@ -1,4 +1,4 @@
-module DeviseAuthy
+module TwilioVerifyDevise
   module Views
     module Helpers
       def authy_request_phone_call_link(opts = {})
@@ -35,24 +35,24 @@ module DeviseAuthy
         )
       end
 
-      def verify_authy_form(opts = {}, &block)
-        opts = default_opts.merge(:id => 'devise_authy').merge(opts)
-        form_tag([resource_name.to_sym, :verify_authy], opts) do
+      def verify_twilio_verify_form(opts = {}, &block)
+        opts = default_opts.merge(:id => 'twilio_verify_devise').merge(opts)
+        form_tag([resource_name.to_sym, :verify_twilio_verify], opts) do
           buffer = hidden_field_tag(:"#{resource_name}_id", @resource.id)
           buffer << capture(&block)
         end
       end
 
-      def enable_authy_form(opts = {}, &block)
+      def enable_twilio_verify_form(opts = {}, &block)
         opts = default_opts.merge(opts)
-        form_tag([resource_name.to_sym, :enable_authy], opts) do
+        form_tag([resource_name.to_sym, :enable_twilio_verify], opts) do
           capture(&block)
         end
       end
 
-      def verify_authy_installation_form(opts = {}, &block)
+      def verify_twilio_verify_installation_form(opts = {}, &block)
         opts = default_opts.merge(opts)
-        form_tag([resource_name.to_sym, :verify_authy_installation], opts) do
+        form_tag([resource_name.to_sym, :verify_twilio_verify_installation], opts) do
           capture(&block)
         end
       end

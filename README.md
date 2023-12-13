@@ -61,28 +61,28 @@ Next add the gem to your Gemfile:
 
 ```ruby
 gem 'devise'
-gem 'devise-authy'
+gem 'twilio-verify-devise'
 ```
 
 And then run `bundle install`
 
 Add `Devise Authy` to your App:
 
-    rails g devise_authy:install
+    rails g twilio_verify_devise:install
 
     --haml: Generate the views in Haml
     --sass: Generate the stylesheets in Sass
 
 ### Configuring Models
 
-You can add devise_authy to your user model in two ways.
+You can add twilio_verify_devise to your user model in two ways.
 
 #### With the generator
 
 Run the following command:
 
 ```bash
-rails g devise_authy [MODEL_NAME]
+rails g twilio_verify_devise [MODEL_NAME]
 ```
 
 To support account locking (recommended), you must add `:authy_lockable` to the `devise :authy_authenticatable, ...` configuration in your model as this is not yet supported by the generator.
@@ -100,7 +100,7 @@ devise :authy_authenticatable, :authy_lockable, :database_authenticatable, :lock
 Also add a new migration. For example, if you are adding to the `User` model, use this migration:
 
 ```ruby
-class DeviseAuthyAddToUsers < ActiveRecord::Migration[6.0]
+class TwilioVerifyDeviseAddToUsers < ActiveRecord::Migration[6.0]
   def self.up
     change_table :users do |t|
       t.string    :authy_id
@@ -131,9 +131,9 @@ rake db:migrate
 
 ```ruby
 devise_for :users, :path_names => {
-	:verify_authy => "/verify-token",
-	:enable_authy => "/enable-two-factor",
-	:verify_authy_installation => "/verify-installation",
+	:verify_twilio_verify => "/verify-token",
+	:enable_twilio_verify => "/enable-two-factor",
+	:verify_twilio_verify_installation => "/verify-installation",
 	:authy_onetouch_status => "/onetouch-status"
 }
 ```
@@ -150,9 +150,9 @@ And when the user logs in they will be redirected to:
 
 If you want to customise your views, you can modify the files that are located at:
 
-    app/views/devise/devise_authy/enable_authy.html.erb
-    app/views/devise/devise_authy/verify_authy.html.erb
-    app/views/devise/devise_authy/verify_authy_installation.html.erb
+    app/views/devise/twilio_verify_devise/enable_twilio_verify.html.erb
+    app/views/devise/twilio_verify_devise/verify_twilio_verify.html.erb
+    app/views/devise/twilio_verify_devise/verify_twilio_verify_installation.html.erb
 
 ### Request a phone call
 
@@ -165,7 +165,7 @@ The default views come with a button to force a request for an SMS message. You 
 If you want to customise the redirects you can override them within your own controller like this:
 
 ```ruby
-class MyCustomModule::DeviseAuthyController < Devise::DeviseAuthyController
+class MyCustomModule::TwilioVerifyDeviseController < Devise::TwilioVerifyDeviseController
 
   protected
     def after_authy_enabled_path_for(resource)
@@ -189,7 +189,7 @@ end
 And tell the router to use this controller
 
 ```ruby
-devise_for :users, controllers: {devise_authy: 'my_custom_module/devise_authy'}
+devise_for :users, controllers: {twilio_verify_devise: 'my_custom_module/twilio_verify_devise'}
 ```
 
 ## I18n
@@ -224,7 +224,7 @@ Authy supports other authenticator apps by providing a QR code that your users c
 
 > **To use this feature, you need to enable it in your [Twilio Console](https://www.twilio.com/console/authy/applications)**
 
-Once you have enabled generic authenticator tokens, you can enable this in devise-authy by modifying the Devise config file `config/initializers/devise.rb` and adding the configuration:
+Once you have enabled generic authenticator tokens, you can enable this in twilio-verify-devise by modifying the Devise config file `config/initializers/devise.rb` and adding the configuration:
 
 ```
 config.authy_enable_qr_code = true

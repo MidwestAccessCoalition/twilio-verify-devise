@@ -3,7 +3,7 @@ en:
     submit_token: 'Check Token'
     submit_token_title: 'Please enter your Authy token:'
     authy_register_title: 'Enable Two factor authentication'
-    enable_authy: 'Enable'
+    enable_twilio_verify: 'Enable'
     cellphone: 'Enter your cellphone'
     country: 'Enter your country'
     request_sms: 'Request SMS'
@@ -17,7 +17,7 @@ en:
     authy_qr_code_alt: 'QR code for scanning with your authenticator app.'
     authy_qr_code_instructions: 'Scan this QR code with your authenticator application and enter the code below.'
 
-    devise_authy:
+    twilio_verify_devise:
       user:
         enabled: 'Two factor authentication was enabled'
         not_enabled: 'Something went wrong while enabling two factor authentication'
