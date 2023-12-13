@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller do
+RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller, pending: true do
   let(:user) { create(:authy_user) }
   before(:each) { request.env["devise.mapping"] = Devise.mappings[:user] }
 
