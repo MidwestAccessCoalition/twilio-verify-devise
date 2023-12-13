@@ -25,12 +25,12 @@ RSpec.describe TwilioVerifyDevise::Generators::TwilioVerifyDeviseGenerator, type
     run_generator ["user"]
   end
 
-  it "adds authy_authenticatable module and authy attributes" do
+  it "adds twilio_verify_authenticatable module and authy attributes" do
     expect(destination_root).to have_structure {
       directory "app" do
         directory "models" do
           file "user.rb" do
-            contains "devise :authy_authenticatable"
+            contains "devise :twilio_verify_authenticatable"
             contains "attr_accessible :authy_id, :last_sign_in_with_authy, :email"
           end
         end
