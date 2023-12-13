@@ -230,7 +230,7 @@ class Devise::TwilioVerifyDeviseController < DeviseController
   end
 
   def handle_invalid_token(view, error_message)
-    if @resource.respond_to?(:invalid_authy_attempt!) && @resource.invalid_authy_attempt!
+    if @resource.respond_to?(:invalid_twilio_verify_attempt!) && @resource.invalid_twilio_verify_attempt!
       after_account_is_locked
     else
       set_flash_message(:error, error_message)

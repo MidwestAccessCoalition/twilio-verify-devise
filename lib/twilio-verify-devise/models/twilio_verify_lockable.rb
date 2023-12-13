@@ -21,7 +21,7 @@ module Devise
       # Devise::Models::Lockable module then enforce that setting.
       #
       # Returns true if the user is locked out.
-      def invalid_authy_attempt!
+      def invalid_twilio_verify_attempt!
         return false unless lockable?
 
         self.failed_attempts ||= 0
