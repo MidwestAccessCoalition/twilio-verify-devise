@@ -33,5 +33,3 @@ require 'twilio-verify-devise/version'
 
 Devise.add_module :twilio_verify_authenticatable, :model => 'twilio-verify-devise/models/twilio_verify_authenticatable', :controller => :twilio_verify_devise, :route => :twilio_verify
 Devise.add_module :twilio_verify_lockable,        :model => 'twilio-verify-devise/models/twilio_verify_lockable'
-
-warn "DEPRECATION WARNING: The authy-devise library is no longer actively maintained. The Authy API is being replaced by the Twilio Verify API. Please see the README for more details."
