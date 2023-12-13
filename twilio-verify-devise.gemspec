@@ -12,15 +12,15 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Deprecated: please see README for details}
   spec.description   = %q{Authy plugin to add two factor authentication to Devise. This gem is deprecated, please see the README for details.}
-  spec.homepage      = "https://github.com/twilio/authy-devise"
+  spec.homepage      = "https://github.com/MidwestAccessCoalition/twilio-verify-devise"
   spec.license       = "MIT"
 
   spec.metadata      = {
-    "bug_tracker_uri"   => "https://github.com/twilio/authy-devise/issues",
-    "change_log_uri"    => "https://github.com/twilio/authy-devise/blob/master/CHANGELOG.md",
-    "documentation_uri" => "https://github.com/twilio/authy-devise",
-    "homepage_uri"      => "https://github.com/twilio/authy-devise",
-    "source_code_uri"   => "https://github.com/twilio/authy-devise"
+    "bug_tracker_uri"   => "https://github.com/MidwestAccessCoalition/twilio-verify-devise/issues",
+    "change_log_uri"    => "https://github.com/MidwestAccessCoalition/twilio-verify-devise/blob/master/CHANGELOG.md",
+    "documentation_uri" => "https://github.com/MidwestAccessCoalition/twilio-verify-devise",
+    "homepage_uri"      => "https://github.com/MidwestAccessCoalition/twilio-verify-devise",
+    "source_code_uri"   => "https://github.com/MidwestAccessCoalition/twilio-verify-devise"
   }
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
