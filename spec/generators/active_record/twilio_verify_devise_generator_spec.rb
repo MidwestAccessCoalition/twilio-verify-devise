@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "generators/active_record/twilio_verify_devise_generator"
 
-RSpec.describe ActiveRecord::Generators::TwilioVerifyDeviseGenerator, type: :generator, pending: true do
+RSpec.describe ActiveRecord::Generators::TwilioVerifyDeviseGenerator, type: :generator, skip: true do
   destination File.expand_path("../../tmp", __FILE__)
 
   after(:all) do

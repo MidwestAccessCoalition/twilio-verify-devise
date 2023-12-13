@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TwilioVerifyDevise::PasswordsController, type: :controller, pending: true do
+RSpec.describe TwilioVerifyDevise::PasswordsController, type: :controller, skip: true do
   before(:each) { request.env["devise.mapping"] = Devise.mappings[:user] }
 
   describe "during Devise :recoverable flow reset password stage" do

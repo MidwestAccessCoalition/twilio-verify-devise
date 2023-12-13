@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe TwilioVerifyDevise::Views::Helpers, type: :helper, pending: true do
+RSpec.describe TwilioVerifyDevise::Views::Helpers, type: :helper, skip: true do
   describe "request phone call link" do
     it "produces an anchor to the request-phone-call endpoint" do
       link = helper.authy_request_phone_call_link

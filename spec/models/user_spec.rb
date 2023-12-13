@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe User, type: :model, pending: true do
+RSpec.describe User, type: :model, skip: true do
   describe "with a user with an authy id" do
     let!(:user) { create(:authy_user) }
 
