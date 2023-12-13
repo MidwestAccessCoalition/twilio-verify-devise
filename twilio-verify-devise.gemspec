@@ -28,6 +28,8 @@ Gem::Specification.new do |spec|
   end
   spec.require_paths = ["lib"]
 
+  spec.minimum_ruby_version = ">= 3.1"
+
   spec.add_dependency "devise", ">= 4.0.0"
   spec.add_dependency "authy", "~> 3.0"
 
