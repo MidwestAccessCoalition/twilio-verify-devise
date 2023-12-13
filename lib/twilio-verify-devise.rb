@@ -26,13 +26,13 @@ end
 require 'twilio-verify-devise/client'
 require 'twilio-verify-devise/routes'
 require 'twilio-verify-devise/rails'
-require 'twilio-verify-devise/models/authy_authenticatable'
+require 'twilio-verify-devise/models/twilio_verify_authenticatable'
 require 'twilio-verify-devise/models/twilio_verify_lockable'
 require 'twilio-verify-devise/version'
 
 Authy.user_agent = "TwilioVerifyDevise/#{TwilioVerifyDevise::VERSION} - #{Authy.user_agent}"
 
-Devise.add_module :authy_authenticatable, :model => 'twilio-verify-devise/models/authy_authenticatable', :controller => :twilio_verify_devise, :route => :authy
+Devise.add_module :twilio_verify_authenticatable, :model => 'twilio-verify-devise/models/twilio_verify_authenticatable', :controller => :twilio_verify_devise, :route => :authy
 Devise.add_module :twilio_verify_lockable,        :model => 'twilio-verify-devise/models/twilio_verify_lockable'
 
 warn "DEPRECATION WARNING: The authy-devise library is no longer actively maintained. The Authy API is being replaced by the Twilio Verify API. Please see the README for more details."

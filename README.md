@@ -85,14 +85,14 @@ Run the following command:
 rails g twilio_verify_devise [MODEL_NAME]
 ```
 
-To support account locking (recommended), you must add `:twilio_verify_lockable` to the `devise :authy_authenticatable, ...` configuration in your model as this is not yet supported by the generator.
+To support account locking (recommended), you must add `:twilio_verify_lockable` to the `devise :twilio_verify_authenticatable, ...` configuration in your model as this is not yet supported by the generator.
 
 #### Manually
 
-Add `:authy_authenticatable` and `:twilio_verify_lockable` to the `devise` options in your Devise user model:
+Add `:twilio_verify_authenticatable` and `:twilio_verify_lockable` to the `devise` options in your Devise user model:
 
 ```ruby
-devise :authy_authenticatable, :twilio_verify_lockable, :database_authenticatable, :lockable
+devise :twilio_verify_authenticatable, :twilio_verify_lockable, :database_authenticatable, :lockable
 ```
 
 (Note, `:twilio_verify_lockable` is optional but recommended. It should be used with Devise's own `:lockable` module).
