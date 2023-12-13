@@ -16,7 +16,7 @@ class Devise::DeviseAuthyController < DeviseController
 
   prepend_before_action :authenticate_scope!, :only => [
     :GET_enable_twilio_verify, :POST_enable_twilio_verify, :GET_verify_twilio_verify_installation,
-    :POST_verify_twilio_verify_installation, :POST_disable_authy
+    :POST_verify_twilio_verify_installation, :POST_disable_twilio_verify
   ]
 
   include Devise::Controllers::Helpers
@@ -79,7 +79,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   # Disable 2FA
-  def POST_disable_authy
+  def POST_disable_twilio_verify
     authy_id = resource.authy_id
     resource.assign_attributes(:authy_enabled => false, :authy_id => nil)
     resource.save(:validate => false)

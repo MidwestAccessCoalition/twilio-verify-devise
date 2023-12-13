@@ -393,8 +393,8 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         expect(response).to redirect_to(new_user_session_path)
       end
 
-      it "POST #disable_authy should redirect to sign in" do
-        post :POST_disable_authy
+      it "POST #disable_twilio_verify should redirect to sign in" do
+        post :POST_disable_twilio_verify
         expect(response).to redirect_to(new_user_session_path)
       end
     end
@@ -678,7 +678,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         end
       end
 
-      describe "POST disable_authy" do
+      describe "POST disable_twilio_verify" do
         describe "successfully" do
           before(:each) do
             cookies.signed[:remember_device] = {
@@ -690,7 +690,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               .with(:id => user.authy_id)
               .and_return(double("Authy::Response", :ok? => true))
 
-            post :POST_disable_authy
+            post :POST_disable_twilio_verify
           end
 
           it "should disable 2FA" do
@@ -721,7 +721,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
             }
             expect(Authy::API).not_to receive(:delete_user)
 
-            post :POST_disable_authy
+            post :POST_disable_twilio_verify
           end
 
           it "should disable 2FA" do
@@ -751,7 +751,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               .with(:id => user.authy_id)
               .and_return(double("Authy::Response", :ok? => false))
 
-            post :POST_disable_authy
+            post :POST_disable_twilio_verify
           end
 
           it "should not disable 2FA" do
