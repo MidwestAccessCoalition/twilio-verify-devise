@@ -23,6 +23,7 @@ module TwilioVerifyDevise
   end
 end
 
+require 'twilio-verify-devise/client'
 require 'twilio-verify-devise/routes'
 require 'twilio-verify-devise/rails'
 require 'twilio-verify-devise/models/authy_authenticatable'
