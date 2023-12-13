@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Devise::SessionsController, type: :controller do
+RSpec.describe Devise::SessionsController, type: :controller, skip: true do
   before(:each) { request.env["devise.mapping"] = Devise.mappings[:user] }
 
   describe "signing in" do

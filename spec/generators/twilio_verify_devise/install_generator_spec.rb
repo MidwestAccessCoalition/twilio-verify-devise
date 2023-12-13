@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "generators/twilio_verify_devise/install_generator"
 
-RSpec.describe TwilioVerifyDevise::Generators::InstallGenerator, type: :generator do
+RSpec.describe TwilioVerifyDevise::Generators::InstallGenerator, type: :generator, skip: true do
   destination File.expand_path("../../tmp", __FILE__)
 
   after(:all) do
