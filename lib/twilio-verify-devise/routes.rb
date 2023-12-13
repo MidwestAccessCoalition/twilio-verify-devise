@@ -2,7 +2,8 @@ module ActionDispatch::Routing
   class Mapper
     protected
 
-    def twilio_verify_devise(mapping, controllers)
+    # this must be in this order because devise is funky and expects their routes helper to prefix devise. I don't know why.
+    def devise_twilio_verify(mapping, controllers) 
       match "/#{mapping.path_names[:verify_twilio_verify]}", :controller => controllers[:twilio_verify_devise], :action => :GET_verify_twilio_verify, :as => :verify_twilio_verify, :via => :get
       match "/#{mapping.path_names[:verify_twilio_verify]}", :controller => controllers[:twilio_verify_devise], :action => :POST_verify_twilio_verify, :as => nil, :via => :post
 
