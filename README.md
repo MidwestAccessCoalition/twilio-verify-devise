@@ -68,21 +68,21 @@ And then run `bundle install`
 
 Add `Devise Authy` to your App:
 
-    rails g devise_authy:install
+    rails g twilio_verify_devise:install
 
     --haml: Generate the views in Haml
     --sass: Generate the stylesheets in Sass
 
 ### Configuring Models
 
-You can add devise_authy to your user model in two ways.
+You can add twilio_verify_devise to your user model in two ways.
 
 #### With the generator
 
 Run the following command:
 
 ```bash
-rails g devise_authy [MODEL_NAME]
+rails g twilio_verify_devise [MODEL_NAME]
 ```
 
 To support account locking (recommended), you must add `:authy_lockable` to the `devise :authy_authenticatable, ...` configuration in your model as this is not yet supported by the generator.
@@ -150,9 +150,9 @@ And when the user logs in they will be redirected to:
 
 If you want to customise your views, you can modify the files that are located at:
 
-    app/views/devise/devise_authy/enable_twilio_verify.html.erb
-    app/views/devise/devise_authy/verify_twilio_verify.html.erb
-    app/views/devise/devise_authy/verify_twilio_verify_installation.html.erb
+    app/views/devise/twilio_verify_devise/enable_twilio_verify.html.erb
+    app/views/devise/twilio_verify_devise/verify_twilio_verify.html.erb
+    app/views/devise/twilio_verify_devise/verify_twilio_verify_installation.html.erb
 
 ### Request a phone call
 
@@ -189,7 +189,7 @@ end
 And tell the router to use this controller
 
 ```ruby
-devise_for :users, controllers: {devise_authy: 'my_custom_module/devise_authy'}
+devise_for :users, controllers: {twilio_verify_devise: 'my_custom_module/twilio_verify_devise'}
 ```
 
 ## I18n

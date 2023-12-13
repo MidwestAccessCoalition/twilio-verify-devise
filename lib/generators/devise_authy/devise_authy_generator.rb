@@ -3,11 +3,11 @@
 module TwilioVerifyDevise
   module Generators
     class TwilioVerifyDeviseGenerator < Rails::Generators::NamedBase
-      namespace "devise_authy"
+      namespace "twilio_verify_devise"
 
       desc "Add :authy_authenticatable directive in the given model, plus accessors. Also generate migration for ActiveRecord"
 
-      def inject_devise_authy_content
+      def inject_twilio_verify_devise_content
         path = File.join(destination_root, "app", "models", "#{file_path}.rb")
         if File.exist?(path) &&
            !File.read(path).include?("authy_authenticatable")

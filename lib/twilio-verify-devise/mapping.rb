@@ -3,7 +3,7 @@ module TwilioVerifyDevise
     private
     def default_controllers(options)
       options[:controllers] ||= {}
-      options[:controllers][:passwords] ||= "devise_authy/passwords"
+      options[:controllers][:passwords] ||= "twilio_verify_devise/passwords"
       super
     end
 

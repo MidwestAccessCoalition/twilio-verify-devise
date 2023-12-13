@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require "generators/active_record/devise_authy_generator"
+require "generators/active_record/twilio_verify_devise_generator"
 
 RSpec.describe ActiveRecord::Generators::TwilioVerifyDeviseGenerator, type: :generator do
   destination File.expand_path("../../tmp", __FILE__)
@@ -17,7 +17,7 @@ RSpec.describe ActiveRecord::Generators::TwilioVerifyDeviseGenerator, type: :gen
     expect(destination_root).to have_structure {
       directory "db" do
         directory "migrate" do
-          migration "devise_authy_add_to_users.rb" do
+          migration "twilio_verify_devise_add_to_users.rb" do
             contains "TwilioVerifyDeviseAddToUsers"
             contains "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
           end

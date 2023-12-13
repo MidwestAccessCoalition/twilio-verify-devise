@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require "generators/devise_authy/install_generator"
+require "generators/twilio_verify_devise/install_generator"
 
 RSpec.describe TwilioVerifyDevise::Generators::InstallGenerator, type: :generator do
   destination File.expand_path("../../tmp", __FILE__)
@@ -68,7 +68,7 @@ RSpec.describe TwilioVerifyDevise::Generators::InstallGenerator, type: :generato
         directory "app" do
           directory "views" do
             directory "devise" do
-              directory "devise_authy" do
+              directory "twilio_verify_devise" do
                 file "enable_twilio_verify.html.erb"
                 file "verify_twilio_verify_installation.html.erb"
                 file "verify_twilio_verify.html.erb"
@@ -84,10 +84,10 @@ RSpec.describe TwilioVerifyDevise::Generators::InstallGenerator, type: :generato
         directory "app" do
           directory "assets" do
             directory "stylesheets" do
-              file "devise_authy.css"
+              file "twilio_verify_devise.css"
             end
             directory "javascripts" do
-              file "devise_authy.js"
+              file "twilio_verify_devise.js"
             end
           end
         end
@@ -123,7 +123,7 @@ RSpec.describe TwilioVerifyDevise::Generators::InstallGenerator, type: :generato
         directory "app" do
           directory "views" do
             directory "devise" do
-              directory "devise_authy" do
+              directory "twilio_verify_devise" do
                 file "enable_twilio_verify.html.haml"
                 file "verify_twilio_verify_installation.html.haml"
                 file "verify_twilio_verify.html.haml"
@@ -148,10 +148,10 @@ RSpec.describe TwilioVerifyDevise::Generators::InstallGenerator, type: :generato
         directory "app" do
           directory "assets" do
             directory "stylesheets" do
-              file "devise_authy.sass"
+              file "twilio_verify_devise.sass"
             end
             directory "javascripts" do
-              file "devise_authy.js"
+              file "twilio_verify_devise.js"
             end
           end
         end

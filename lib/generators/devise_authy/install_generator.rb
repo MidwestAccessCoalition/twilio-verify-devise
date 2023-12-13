@@ -36,23 +36,23 @@ module TwilioVerifyDevise
 
       def copy_views
         if options.haml?
-          copy_file '../../../app/views/devise/enable_twilio_verify.html.haml', 'app/views/devise/devise_authy/enable_twilio_verify.html.haml'
-          copy_file '../../../app/views/devise/verify_twilio_verify.html.haml', 'app/views/devise/devise_authy/verify_twilio_verify.html.haml'
-          copy_file '../../../app/views/devise/verify_twilio_verify_installation.html.haml', 'app/views/devise/devise_authy/verify_twilio_verify_installation.html.haml'
+          copy_file '../../../app/views/devise/enable_twilio_verify.html.haml', 'app/views/devise/twilio_verify_devise/enable_twilio_verify.html.haml'
+          copy_file '../../../app/views/devise/verify_twilio_verify.html.haml', 'app/views/devise/twilio_verify_devise/verify_twilio_verify.html.haml'
+          copy_file '../../../app/views/devise/verify_twilio_verify_installation.html.haml', 'app/views/devise/twilio_verify_devise/verify_twilio_verify_installation.html.haml'
         else
-          copy_file '../../../app/views/devise/enable_twilio_verify.html.erb', 'app/views/devise/devise_authy/enable_twilio_verify.html.erb'
-          copy_file '../../../app/views/devise/verify_twilio_verify.html.erb', 'app/views/devise/devise_authy/verify_twilio_verify.html.erb'
-          copy_file '../../../app/views/devise/verify_twilio_verify_installation.html.erb', 'app/views/devise/devise_authy/verify_twilio_verify_installation.html.erb'
+          copy_file '../../../app/views/devise/enable_twilio_verify.html.erb', 'app/views/devise/twilio_verify_devise/enable_twilio_verify.html.erb'
+          copy_file '../../../app/views/devise/verify_twilio_verify.html.erb', 'app/views/devise/twilio_verify_devise/verify_twilio_verify.html.erb'
+          copy_file '../../../app/views/devise/verify_twilio_verify_installation.html.erb', 'app/views/devise/twilio_verify_devise/verify_twilio_verify_installation.html.erb'
         end
       end
 
       def copy_assets
         if options.sass?
-          copy_file '../../../app/assets/stylesheets/devise_authy.sass', 'app/assets/stylesheets/devise_authy.sass'
+          copy_file '../../../app/assets/stylesheets/twilio_verify_devise.sass', 'app/assets/stylesheets/twilio_verify_devise.sass'
         else
-          copy_file '../../../app/assets/stylesheets/devise_authy.css', 'app/assets/stylesheets/devise_authy.css'
+          copy_file '../../../app/assets/stylesheets/twilio_verify_devise.css', 'app/assets/stylesheets/twilio_verify_devise.css'
         end
-        copy_file '../../../app/assets/javascripts/devise_authy.js', 'app/assets/javascripts/devise_authy.js'
+        copy_file '../../../app/assets/javascripts/twilio_verify_devise.js', 'app/assets/javascripts/twilio_verify_devise.js'
       end
 
       def inject_assets_in_layout

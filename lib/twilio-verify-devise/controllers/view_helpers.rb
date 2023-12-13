@@ -36,7 +36,7 @@ module TwilioVerifyDevise
       end
 
       def verify_twilio_verify_form(opts = {}, &block)
-        opts = default_opts.merge(:id => 'devise_authy').merge(opts)
+        opts = default_opts.merge(:id => 'twilio_verify_devise').merge(opts)
         form_tag([resource_name.to_sym, :verify_twilio_verify], opts) do
           buffer = hidden_field_tag(:"#{resource_name}_id", @resource.id)
           buffer << capture(&block)
