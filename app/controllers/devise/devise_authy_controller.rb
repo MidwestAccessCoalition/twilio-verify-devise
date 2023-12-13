@@ -1,4 +1,4 @@
-class Devise::DeviseAuthyController < DeviseController
+class Devise::TwilioVerifyDeviseController < DeviseController
   prepend_before_action :find_resource, :only => [
     :request_phone_call, :request_sms
   ]

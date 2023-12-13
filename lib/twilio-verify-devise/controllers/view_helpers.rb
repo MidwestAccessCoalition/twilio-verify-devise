@@ -1,4 +1,4 @@
-module DeviseAuthy
+module TwilioVerifyDevise
   module Views
     module Helpers
       def authy_request_phone_call_link(opts = {})

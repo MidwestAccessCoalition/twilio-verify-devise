@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require "generators/devise_authy/devise_authy_generator"
 
-RSpec.describe DeviseAuthy::Generators::DeviseAuthyGenerator, type: :generator do
+RSpec.describe TwilioVerifyDevise::Generators::TwilioVerifyDeviseGenerator, type: :generator do
   destination File.expand_path("../../tmp", __FILE__)
 
   after(:all) do

@@ -1,6 +1,6 @@
 require "rails/generators"
 
-module DeviseAuthy
+module TwilioVerifyDevise
   module Generators
     # Install Generator
     class InstallGenerator < ::Rails::Generators::Base

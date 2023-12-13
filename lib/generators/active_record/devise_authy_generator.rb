@@ -2,7 +2,7 @@ require 'rails/generators/active_record'
 
 module ActiveRecord
   module Generators
-    class DeviseAuthyGenerator < ActiveRecord::Generators::Base
+    class TwilioVerifyDeviseGenerator < ActiveRecord::Generators::Base
       source_root File.expand_path("../templates", __FILE__)
 
       def copy_devise_migration

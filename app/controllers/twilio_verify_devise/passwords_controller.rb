@@ -1,4 +1,4 @@
-class DeviseAuthy::PasswordsController < Devise::PasswordsController
+class TwilioVerifyDevise::PasswordsController < Devise::PasswordsController
   ##
   # In the passwords controller a user can update their password using a
   # recovery token. If `Devise.sign_in_after_reset_password` is `true` then the

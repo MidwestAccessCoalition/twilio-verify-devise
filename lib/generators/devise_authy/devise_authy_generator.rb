@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module DeviseAuthy
+module TwilioVerifyDevise
   module Generators
-    class DeviseAuthyGenerator < Rails::Generators::NamedBase
+    class TwilioVerifyDeviseGenerator < Rails::Generators::NamedBase
       namespace "devise_authy"
 
       desc "Add :authy_authenticatable directive in the given model, plus accessors. Also generate migration for ActiveRecord"

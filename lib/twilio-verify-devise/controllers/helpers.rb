@@ -1,4 +1,4 @@
-module DeviseAuthy
+module TwilioVerifyDevise
   module Controllers
     module Helpers
       extend ActiveSupport::Concern

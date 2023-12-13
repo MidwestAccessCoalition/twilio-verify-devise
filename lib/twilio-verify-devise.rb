@@ -10,7 +10,7 @@ module Devise
   @@authy_enable_qr_code = false
 end
 
-module DeviseAuthy
+module TwilioVerifyDevise
   autoload :Mapping, 'devise-authy/mapping'
 
   module Controllers
@@ -29,7 +29,7 @@ require 'devise-authy/models/authy_authenticatable'
 require 'devise-authy/models/authy_lockable'
 require 'devise-authy/version'
 
-Authy.user_agent = "DeviseAuthy/#{DeviseAuthy::VERSION} - #{Authy.user_agent}"
+Authy.user_agent = "TwilioVerifyDevise/#{TwilioVerifyDevise::VERSION} - #{Authy.user_agent}"
 
 Devise.add_module :authy_authenticatable, :model => 'devise-authy/models/authy_authenticatable', :controller => :devise_authy, :route => :authy
 Devise.add_module :authy_lockable,        :model => 'devise-authy/models/authy_lockable'

@@ -1,4 +1,4 @@
-module DeviseAuthy
+module TwilioVerifyDevise
   module Mapping
     private
     def default_controllers(options)

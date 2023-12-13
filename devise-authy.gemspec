@@ -6,7 +6,7 @@ require "devise-authy/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "devise-authy"
-  spec.version       = DeviseAuthy::VERSION
+  spec.version       = TwilioVerifyDevise::VERSION
   spec.authors       = ["Authy Inc."]
   spec.email         = ["support@authy.com"]
 

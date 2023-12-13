@@ -100,7 +100,7 @@ devise :authy_authenticatable, :authy_lockable, :database_authenticatable, :lock
 Also add a new migration. For example, if you are adding to the `User` model, use this migration:
 
 ```ruby
-class DeviseAuthyAddToUsers < ActiveRecord::Migration[6.0]
+class TwilioVerifyDeviseAddToUsers < ActiveRecord::Migration[6.0]
   def self.up
     change_table :users do |t|
       t.string    :authy_id
@@ -165,7 +165,7 @@ The default views come with a button to force a request for an SMS message. You 
 If you want to customise the redirects you can override them within your own controller like this:
 
 ```ruby
-class MyCustomModule::DeviseAuthyController < Devise::DeviseAuthyController
+class MyCustomModule::TwilioVerifyDeviseController < Devise::TwilioVerifyDeviseController
 
   protected
     def after_authy_enabled_path_for(resource)
