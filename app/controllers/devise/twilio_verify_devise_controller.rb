@@ -1,36 +1,36 @@
-class Devise::DeviseAuthyController < DeviseController
+class Devise::TwilioVerifyDeviseController < DeviseController
   prepend_before_action :find_resource, :only => [
     :request_phone_call, :request_sms
   ]
   prepend_before_action :find_resource_and_require_password_checked, :only => [
-    :GET_verify_authy, :POST_verify_authy, :GET_authy_onetouch_status
+    :GET_verify_twilio_verify, :POST_verify_twilio_verify, :GET_authy_onetouch_status
   ]
 
   prepend_before_action :check_resource_has_authy_id, :only => [
-    :GET_verify_authy_installation, :POST_verify_authy_installation
+    :GET_verify_twilio_verify_installation, :POST_verify_twilio_verify_installation
   ]
 
   prepend_before_action :check_resource_not_authy_enabled, :only => [
-    :GET_verify_authy_installation, :POST_verify_authy_installation
+    :GET_verify_twilio_verify_installation, :POST_verify_twilio_verify_installation
   ]
 
   prepend_before_action :authenticate_scope!, :only => [
-    :GET_enable_authy, :POST_enable_authy, :GET_verify_authy_installation,
-    :POST_verify_authy_installation, :POST_disable_authy
+    :GET_enable_twilio_verify, :POST_enable_twilio_verify, :GET_verify_twilio_verify_installation,
+    :POST_verify_twilio_verify_installation, :POST_disable_twilio_verify
   ]
 
   include Devise::Controllers::Helpers
 
-  def GET_verify_authy
+  def GET_verify_twilio_verify
     if resource_class.authy_enable_onetouch
       approval_request = send_one_touch_request(@resource.authy_id)['approval_request']
       @onetouch_uuid = approval_request['uuid'] if approval_request.present?
     end
-    render :verify_authy
+    render :verify_twilio_verify
   end
 
   # verify 2fa
-  def POST_verify_authy
+  def POST_verify_twilio_verify
     token = Authy::API.verify({
       :id => @resource.authy_id,
       :token => params[:token],
@@ -43,21 +43,21 @@ class Devise::DeviseAuthyController < DeviseController
       record_authy_authentication
       respond_with resource, :location => after_sign_in_path_for(@resource)
     else
-      handle_invalid_token :verify_authy, :invalid_token
+      handle_invalid_token :verify_twilio_verify, :invalid_token
     end
   end
 
   # enable 2fa
-  def GET_enable_authy
+  def GET_enable_twilio_verify
     if resource.authy_id.blank? || !resource.authy_enabled
-      render :enable_authy
+      render :enable_twilio_verify
     else
       set_flash_message(:notice, :already_enabled)
       redirect_to after_authy_enabled_path_for(resource)
     end
   end
 
-  def POST_enable_authy
+  def POST_enable_twilio_verify
     @authy_user = Authy::API.register_user(
       :email => resource.email,
       :cellphone => params[:cellphone],
@@ -67,19 +67,19 @@ class Devise::DeviseAuthyController < DeviseController
     if @authy_user.ok?
       resource.authy_id = @authy_user.id
       if resource.save
-        redirect_to [resource_name, :verify_authy_installation] and return
+        redirect_to [resource_name, :verify_twilio_verify_installation] and return
       else
         set_flash_message(:error, :not_enabled)
         redirect_to after_authy_enabled_path_for(resource) and return
       end
     else
       set_flash_message(:error, :not_enabled)
-      render :enable_authy
+      render :enable_twilio_verify
     end
   end
 
   # Disable 2FA
-  def POST_disable_authy
+  def POST_disable_twilio_verify
     authy_id = resource.authy_id
     resource.assign_attributes(:authy_enabled => false, :authy_id => nil)
     resource.save(:validate => false)
@@ -108,15 +108,15 @@ class Devise::DeviseAuthyController < DeviseController
     redirect_to after_authy_disabled_path_for(resource)
   end
 
-  def GET_verify_authy_installation
+  def GET_verify_twilio_verify_installation
     if resource_class.authy_enable_qr_code
       response = Authy::API.request_qr_code(id: resource.authy_id)
       @authy_qr_code = response.qr_code
     end
-    render :verify_authy_installation
+    render :verify_twilio_verify_installation
   end
 
-  def POST_verify_authy_installation
+  def POST_verify_twilio_verify_installation
     token = Authy::API.verify({
       :id => self.resource.authy_id,
       :token => params[:token],
@@ -135,7 +135,7 @@ class Devise::DeviseAuthyController < DeviseController
         response = Authy::API.request_qr_code(id: resource.authy_id)
         @authy_qr_code = response.qr_code
       end
-      handle_invalid_token :verify_authy_installation, :not_enabled
+      handle_invalid_token :verify_twilio_verify_installation, :not_enabled
     end
   end
 
@@ -202,7 +202,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def check_resource_has_authy_id
-    redirect_to [resource_name, :enable_authy] if !resource.authy_id
+    redirect_to [resource_name, :enable_twilio_verify] if !resource.authy_id
   end
 
   def check_resource_not_authy_enabled
@@ -230,7 +230,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def handle_invalid_token(view, error_message)
-    if @resource.respond_to?(:invalid_authy_attempt!) && @resource.invalid_authy_attempt!
+    if @resource.respond_to?(:invalid_twilio_verify_attempt!) && @resource.invalid_twilio_verify_attempt!
       after_account_is_locked
     else
       set_flash_message(:error, error_message)

@@ -73,8 +73,8 @@ Releasing this as version 2 because there is a significant change in dependencie
 
 ### Fixed
 
-- Corrects for label in verify_authy view (#103 thanks @mstruebing)
-- Corrects heading in verify_authy view (#104 thanks @mstruebing)
+- Corrects for label in verify_twilio_verify view (#103 thanks @mstruebing)
+- Corrects heading in verify_twilio_verify view (#104 thanks @mstruebing)
 
 ### Changed
 

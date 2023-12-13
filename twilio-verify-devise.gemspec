@@ -2,11 +2,11 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "devise-authy/version"
+require "twilio-verify-devise/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "devise-authy"
-  spec.version       = DeviseAuthy::VERSION
+  spec.name          = "twilio-verify-devise"
+  spec.version       = TwilioVerifyDevise::VERSION
   spec.authors       = ["Authy Inc."]
   spec.email         = ["support@authy.com"]
 

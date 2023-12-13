@@ -1,4 +1,4 @@
-require 'devise-authy/hooks/authy_authenticatable'
+require 'twilio-verify-devise/hooks/authy_authenticatable'
 module Devise
   module Models
     module AuthyAuthenticatable
