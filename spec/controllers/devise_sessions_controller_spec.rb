@@ -23,7 +23,7 @@ RSpec.describe Devise::SessionsController, type: :controller do
 
       it "should redirect to verify authy path" do
         post :create, :params => { user: { email: authy_user.email, password: authy_user.password } }
-        expect(response).to redirect_to user_verify_authy_path
+        expect(response).to redirect_to user_verify_twilio_verify_path
       end
 
       it "should store id, password_checked in the session" do

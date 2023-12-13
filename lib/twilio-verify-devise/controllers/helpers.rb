@@ -66,14 +66,14 @@ module DeviseAuthy
           session["#{resource_name}_remember_me"] = remember_me
           session["#{resource_name}_return_to"] = return_to if return_to
 
-          redirect_to verify_authy_path_for(resource_name)
+          redirect_to verify_twilio_verify_path_for(resource_name)
           return
         end
       end
 
-      def verify_authy_path_for(resource_or_scope = nil)
+      def verify_twilio_verify_path_for(resource_or_scope = nil)
         scope = Devise::Mapping.find_scope!(resource_or_scope)
-        send(:"#{scope}_verify_authy_path")
+        send(:"#{scope}_verify_twilio_verify_path")
       end
 
       def send_one_touch_request(authy_id)

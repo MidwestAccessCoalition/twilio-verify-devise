@@ -36,11 +36,11 @@ RSpec.describe DeviseAuthy::Views::Helpers, type: :helper do
   describe "with a user" do
     let(:user) { create(:user) }
 
-    describe "verify_authy_form" do
+    describe "verify_twilio_verify_form" do
       it "creates a verify form with the user id as a field" do
         assign(:resource, user)
-        form = helper.verify_authy_form { "I'm in a form" }
-        expect(form).to match(%r|action="/users/verify_authy"|)
+        form = helper.verify_twilio_verify_form { "I'm in a form" }
+        expect(form).to match(%r|action="/users/verify_twilio_verify"|)
         expect(form).to match(%|<input type="hidden" name="user_id" id="user_id" value="#{user.id}"|)
       end
     end
@@ -53,11 +53,11 @@ RSpec.describe DeviseAuthy::Views::Helpers, type: :helper do
       end
     end
 
-    describe "verify_authy_installation_form" do
+    describe "verify_twilio_verify_installation_form" do
       it "creates a verify form with the user id as a field" do
         assign(:resource, user)
-        form = helper.verify_authy_installation_form { "I'm in a form" }
-        expect(form).to match(%r|action="/users/verify_authy_installation"|)
+        form = helper.verify_twilio_verify_installation_form { "I'm in a form" }
+        expect(form).to match(%r|action="/users/verify_twilio_verify_installation"|)
       end
     end
 
