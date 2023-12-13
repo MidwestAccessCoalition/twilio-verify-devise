@@ -1,7 +1,7 @@
 require 'twilio-verify-devise/hooks/twilio_verify_authenticatable'
 module Devise
   module Models
-    module AuthyAuthenticatable
+    module TwilioVerifyAuthenticatable
       extend ActiveSupport::Concern
 
       def with_authy_authentication?(request)
