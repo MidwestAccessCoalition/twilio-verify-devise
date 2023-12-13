@@ -43,9 +43,9 @@ module DeviseAuthy
         end
       end
 
-      def enable_authy_form(opts = {}, &block)
+      def enable_twilio_verify_form(opts = {}, &block)
         opts = default_opts.merge(opts)
-        form_tag([resource_name.to_sym, :enable_authy], opts) do
+        form_tag([resource_name.to_sym, :enable_twilio_verify], opts) do
           capture(&block)
         end
       end

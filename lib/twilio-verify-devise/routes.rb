@@ -6,8 +6,8 @@ module ActionDispatch::Routing
       match "/#{mapping.path_names[:verify_twilio_verify]}", :controller => controllers[:devise_authy], :action => :GET_verify_twilio_verify, :as => :verify_twilio_verify, :via => :get
       match "/#{mapping.path_names[:verify_twilio_verify]}", :controller => controllers[:devise_authy], :action => :POST_verify_twilio_verify, :as => nil, :via => :post
 
-      match "/#{mapping.path_names[:enable_authy]}", :controller => controllers[:devise_authy], :action => :GET_enable_authy, :as => :enable_authy, :via => :get
-      match "/#{mapping.path_names[:enable_authy]}", :controller => controllers[:devise_authy], :action => :POST_enable_authy, :as => nil, :via => :post
+      match "/#{mapping.path_names[:enable_twilio_verify]}", :controller => controllers[:devise_authy], :action => :GET_enable_twilio_verify, :as => :enable_twilio_verify, :via => :get
+      match "/#{mapping.path_names[:enable_twilio_verify]}", :controller => controllers[:devise_authy], :action => :POST_enable_twilio_verify, :as => nil, :via => :post
 
       match "/#{mapping.path_names[:disable_authy]}", :controller => controllers[:devise_authy], :action => :POST_disable_authy, :as => :disable_authy, :via => :post
 

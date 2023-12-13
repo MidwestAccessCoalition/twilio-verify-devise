@@ -132,7 +132,7 @@ rake db:migrate
 ```ruby
 devise_for :users, :path_names => {
 	:verify_twilio_verify => "/verify-token",
-	:enable_authy => "/enable-two-factor",
+	:enable_twilio_verify => "/enable-two-factor",
 	:verify_twilio_verify_installation => "/verify-installation",
 	:authy_onetouch_status => "/onetouch-status"
 }
@@ -150,7 +150,7 @@ And when the user logs in they will be redirected to:
 
 If you want to customise your views, you can modify the files that are located at:
 
-    app/views/devise/devise_authy/enable_authy.html.erb
+    app/views/devise/devise_authy/enable_twilio_verify.html.erb
     app/views/devise/devise_authy/verify_twilio_verify.html.erb
     app/views/devise/devise_authy/verify_twilio_verify_installation.html.erb
 

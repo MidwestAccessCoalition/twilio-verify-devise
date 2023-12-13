@@ -45,11 +45,11 @@ RSpec.describe DeviseAuthy::Views::Helpers, type: :helper do
       end
     end
 
-    describe "enable_authy_form" do
+    describe "enable_twilio_verify_form" do
       it "creates a verify form with the user id as a field" do
         assign(:resource, user)
-        form = helper.enable_authy_form { "I'm in a form" }
-        expect(form).to match(%r|action="/users/enable_authy"|)
+        form = helper.enable_twilio_verify_form { "I'm in a form" }
+        expect(form).to match(%r|action="/users/enable_twilio_verify"|)
       end
     end
 

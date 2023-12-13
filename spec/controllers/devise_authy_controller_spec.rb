@@ -373,13 +373,13 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
   describe "enabling/disabling authy" do
     describe "with no-one logged in" do
-      it "GET #enable_authy should redirect to sign in" do
-        get :GET_enable_authy
+      it "GET #enable_twilio_verify should redirect to sign in" do
+        get :GET_enable_twilio_verify
         expect(response).to redirect_to(new_user_session_path)
       end
 
-      it "POST #enable_authy should redirect to sign in" do
-        post :POST_enable_authy
+      it "POST #enable_twilio_verify should redirect to sign in" do
+        post :POST_enable_twilio_verify
         expect(response).to redirect_to(new_user_session_path)
       end
 
@@ -402,28 +402,28 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     describe "with a logged in user" do
       before(:each) { sign_in(user) }
 
-      describe "GET #enable_authy" do
+      describe "GET #enable_twilio_verify" do
         it "should render enable authy view if user isn't enabled" do
           user.update_attribute(:authy_enabled, false)
-          get :GET_enable_authy
-          expect(response).to render_template("enable_authy")
+          get :GET_enable_twilio_verify
+          expect(response).to render_template("enable_twilio_verify")
         end
 
         it "should render enable authy view if user doens't have an authy_id" do
           user.update_attribute(:authy_id, nil)
-          get :GET_enable_authy
-          expect(response).to render_template("enable_authy")
+          get :GET_enable_twilio_verify
+          expect(response).to render_template("enable_twilio_verify")
         end
 
         it "should redirect and set flash if authy is enabled" do
           user.update_attribute(:authy_enabled, true)
-          get :GET_enable_authy
+          get :GET_enable_twilio_verify
           expect(response).to redirect_to(root_path)
           expect(flash[:notice]).not_to be nil
         end
       end
 
-      describe "POST #enable_authy" do
+      describe "POST #enable_twilio_verify" do
         let(:user) { create(:user) }
         let(:cellphone) { '3010008090' }
         let(:country_code) { '57' }
@@ -435,7 +435,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               :cellphone => cellphone,
               :country_code => country_code
             ).and_return(double("Authy::User", :ok? => true, :id => "123"))
-            post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
+            post :POST_enable_twilio_verify, :params => { :cellphone => cellphone, :country_code => country_code }
           end
 
           it "save the authy_id to the user" do
@@ -462,7 +462,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               :cellphone => cellphone,
               :country_code => country_code
             ).and_return(double("Authy::User", :ok? => true, :id => "123"))
-            post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
+            post :POST_enable_twilio_verify, :params => { :cellphone => cellphone, :country_code => country_code }
           end
 
           it "should set an error flash" do
@@ -482,7 +482,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               :country_code => country_code
             ).and_return(double("Authy::User", :ok? => false))
 
-            post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
+            post :POST_enable_twilio_verify, :params => { :cellphone => cellphone, :country_code => country_code }
           end
 
           it "does not update the authy_id" do
@@ -495,8 +495,8 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
             expect(flash[:error]).to eq("Something went wrong while enabling two factor authentication")
           end
 
-          it "renders enable_authy page again" do
-            expect(response).to render_template('enable_authy')
+          it "renders enable_twilio_verify page again" do
+            expect(response).to render_template('enable_twilio_verify')
           end
         end
       end
@@ -508,7 +508,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           it "should redirect to enable authy" do
             get :GET_verify_twilio_verify_installation
-            expect(response).to redirect_to user_enable_authy_path
+            expect(response).to redirect_to user_enable_twilio_verify_path
           end
         end
 
@@ -556,7 +556,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           let(:user) { create(:user) }
           it "redirects to enable path" do
             post :POST_verify_twilio_verify_installation, :params => { :token => token }
-            expect(response).to redirect_to(user_enable_authy_path)
+            expect(response).to redirect_to(user_enable_twilio_verify_path)
           end
         end
 

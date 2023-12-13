@@ -15,7 +15,7 @@ class Devise::DeviseAuthyController < DeviseController
   ]
 
   prepend_before_action :authenticate_scope!, :only => [
-    :GET_enable_authy, :POST_enable_authy, :GET_verify_twilio_verify_installation,
+    :GET_enable_twilio_verify, :POST_enable_twilio_verify, :GET_verify_twilio_verify_installation,
     :POST_verify_twilio_verify_installation, :POST_disable_authy
   ]
 
@@ -48,16 +48,16 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   # enable 2fa
-  def GET_enable_authy
+  def GET_enable_twilio_verify
     if resource.authy_id.blank? || !resource.authy_enabled
-      render :enable_authy
+      render :enable_twilio_verify
     else
       set_flash_message(:notice, :already_enabled)
       redirect_to after_authy_enabled_path_for(resource)
     end
   end
 
-  def POST_enable_authy
+  def POST_enable_twilio_verify
     @authy_user = Authy::API.register_user(
       :email => resource.email,
       :cellphone => params[:cellphone],
@@ -74,7 +74,7 @@ class Devise::DeviseAuthyController < DeviseController
       end
     else
       set_flash_message(:error, :not_enabled)
-      render :enable_authy
+      render :enable_twilio_verify
     end
   end
 
@@ -202,7 +202,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def check_resource_has_authy_id
-    redirect_to [resource_name, :enable_authy] if !resource.authy_id
+    redirect_to [resource_name, :enable_twilio_verify] if !resource.authy_id
   end
 
   def check_resource_not_authy_enabled

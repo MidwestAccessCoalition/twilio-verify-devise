@@ -69,7 +69,7 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
           directory "views" do
             directory "devise" do
               directory "devise_authy" do
-                file "enable_authy.html.erb"
+                file "enable_twilio_verify.html.erb"
                 file "verify_twilio_verify_installation.html.erb"
                 file "verify_twilio_verify.html.erb"
               end
@@ -124,7 +124,7 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
           directory "views" do
             directory "devise" do
               directory "devise_authy" do
-                file "enable_authy.html.haml"
+                file "enable_twilio_verify.html.haml"
                 file "verify_twilio_verify_installation.html.haml"
                 file "verify_twilio_verify.html.haml"
               end
