@@ -61,7 +61,7 @@ Next add the gem to your Gemfile:
 
 ```ruby
 gem 'devise'
-gem 'devise-authy'
+gem 'twilio-verify-devise'
 ```
 
 And then run `bundle install`
@@ -224,7 +224,7 @@ Authy supports other authenticator apps by providing a QR code that your users c
 
 > **To use this feature, you need to enable it in your [Twilio Console](https://www.twilio.com/console/authy/applications)**
 
-Once you have enabled generic authenticator tokens, you can enable this in devise-authy by modifying the Devise config file `config/initializers/devise.rb` and adding the configuration:
+Once you have enabled generic authenticator tokens, you can enable this in twilio-verify-devise by modifying the Devise config file `config/initializers/devise.rb` and adding the configuration:
 
 ```
 config.authy_enable_qr_code = true

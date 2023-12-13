@@ -10,7 +10,7 @@ end
 
 Bundler.require :default, :development
 require "devise"
-require "./lib/devise-authy"
+require "./lib/twilio-verify-devise"
 Combustion.initialize!(:all)
 
 require "rspec/rails"

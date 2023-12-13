@@ -11,27 +11,27 @@ module Devise
 end
 
 module TwilioVerifyDevise
-  autoload :Mapping, 'devise-authy/mapping'
+  autoload :Mapping, 'twilio-verify-devise/mapping'
 
   module Controllers
-    autoload :Passwords, 'devise-authy/controllers/passwords'
-    autoload :Helpers, 'devise-authy/controllers/helpers'
+    autoload :Passwords, 'twilio-verify-devise/controllers/passwords'
+    autoload :Helpers, 'twilio-verify-devise/controllers/helpers'
   end
 
   module Views
-    autoload :Helpers, 'devise-authy/controllers/view_helpers'
+    autoload :Helpers, 'twilio-verify-devise/controllers/view_helpers'
   end
 end
 
-require 'devise-authy/routes'
-require 'devise-authy/rails'
-require 'devise-authy/models/authy_authenticatable'
-require 'devise-authy/models/authy_lockable'
-require 'devise-authy/version'
+require 'twilio-verify-devise/routes'
+require 'twilio-verify-devise/rails'
+require 'twilio-verify-devise/models/authy_authenticatable'
+require 'twilio-verify-devise/models/authy_lockable'
+require 'twilio-verify-devise/version'
 
 Authy.user_agent = "TwilioVerifyDevise/#{TwilioVerifyDevise::VERSION} - #{Authy.user_agent}"
 
-Devise.add_module :authy_authenticatable, :model => 'devise-authy/models/authy_authenticatable', :controller => :twilio_verify_devise, :route => :authy
-Devise.add_module :authy_lockable,        :model => 'devise-authy/models/authy_lockable'
+Devise.add_module :authy_authenticatable, :model => 'twilio-verify-devise/models/authy_authenticatable', :controller => :twilio_verify_devise, :route => :authy
+Devise.add_module :authy_lockable,        :model => 'twilio-verify-devise/models/authy_lockable'
 
 warn "DEPRECATION WARNING: The authy-devise library is no longer actively maintained. The Authy API is being replaced by the Twilio Verify API. Please see the README for more details."
