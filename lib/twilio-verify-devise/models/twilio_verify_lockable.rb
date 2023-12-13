@@ -5,7 +5,7 @@ module Devise
     # Handles blocking a user access after a certain number of attempts.
     # Requires proper configuration of the Devise::Models::Lockable module.
     #
-    module AuthyLockable
+    module TwilioVerifyLockable
 
       extend ActiveSupport::Concern
 
