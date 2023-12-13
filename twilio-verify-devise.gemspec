@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.minimum_ruby_version = ">= 3.1"
 
   spec.add_dependency "devise", ">= 4.0.0"
-  spec.add_dependency "authy", "~> 3.0"
+  spec.add_dependency "twilio-ruby", "~> 6.0"
 
   spec.add_development_dependency "appraisal", "~> 2.2"
   spec.add_development_dependency "bundler", ">= 1.16"
@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rdoc", "~> 4.3.0"
   spec.add_development_dependency "simplecov", "~> 0.17.1"
   spec.add_development_dependency "webmock", "~> 3.11.0"
-  spec.add_development_dependency "rails", ">= 5"
+  spec.add_development_dependency "rails", ">= 6"
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "generator_spec"
   spec.add_development_dependency "database_cleaner", "~> 1.7"

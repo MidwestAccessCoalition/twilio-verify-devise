@@ -1,7 +1,7 @@
 require 'active_support/concern'
 require 'active_support/core_ext/integer/time'
 require 'devise'
-require 'authy'
+require 'twilio-ruby'
 
 module Devise
   mattr_accessor :authy_remember_device, :authy_enable_onetouch, :authy_enable_qr_code
@@ -30,7 +30,6 @@ require 'twilio-verify-devise/models/twilio_verify_authenticatable'
 require 'twilio-verify-devise/models/twilio_verify_lockable'
 require 'twilio-verify-devise/version'
 
-Authy.user_agent = "TwilioVerifyDevise/#{TwilioVerifyDevise::VERSION} - #{Authy.user_agent}"
 
 Devise.add_module :twilio_verify_authenticatable, :model => 'twilio-verify-devise/models/twilio_verify_authenticatable', :controller => :twilio_verify_devise, :route => :authy
 Devise.add_module :twilio_verify_lockable,        :model => 'twilio-verify-devise/models/twilio_verify_lockable'
