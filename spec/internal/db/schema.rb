@@ -34,4 +34,17 @@ ActiveRecord::Schema.define do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
+
+  create_table "mfa_configs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "verify_identity"
+    t.string "verify_factor_id"
+    t.string "qr_code_uri"
+    t.string "cellphone"
+    t.string "country_code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_mfa_configs_on_user_id"
+  end
+
 end

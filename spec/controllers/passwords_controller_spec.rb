@@ -19,7 +19,7 @@ RSpec.describe TwilioVerifyDevise::PasswordsController, type: :controller, skip:
     end
 
     describe "with a user with authy id and authy enabled" do
-      let(:user) { create(:authy_user) }
+      let(:user) { create(:twilio_verify_user) }
 
       it "should not sign in the user after password reset" do
         token = user.send_reset_password_instructions
