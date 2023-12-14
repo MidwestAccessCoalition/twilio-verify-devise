@@ -13,7 +13,7 @@ FactoryBot.define do
     email { generate(:email) }
     password { "correct horse battery staple" }
 
-    factory :authy_user do
+    factory :twilio_verify_user do
       authy_id { generate(:authy_id) }
       authy_enabled { true }
     end
@@ -29,5 +29,8 @@ FactoryBot.define do
     password { "correct horse battery staple" }
     authy_id { generate(:authy_id) }
     authy_enabled { true }
+  end
+
+  factory :mfa_config do
   end
 end

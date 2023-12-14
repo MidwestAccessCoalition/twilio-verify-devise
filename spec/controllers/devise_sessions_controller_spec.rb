@@ -19,24 +19,24 @@ RSpec.describe Devise::SessionsController, type: :controller, skip: true do
     end
 
     describe "with an authy enabled user" do
-      let(:authy_user) { create(:authy_user) }
+      let(:twilio_verify_user) { create(:twilio_verify_user) }
 
       it "should redirect to verify authy path" do
-        post :create, :params => { user: { email: authy_user.email, password: authy_user.password } }
+        post :create, :params => { user: { email: twilio_verify_user.email, password: twilio_verify_user.password } }
         expect(response).to redirect_to user_verify_twilio_verify_path
       end
 
       it "should store id, password_checked in the session" do
-        post :create, :params => { user: { email: authy_user.email, password: authy_user.password } }
-        expect(session["user_id"]).to eq(authy_user.id)
+        post :create, :params => { user: { email: twilio_verify_user.email, password: twilio_verify_user.password } }
+        expect(session["user_id"]).to eq(twilio_verify_user.id)
         expect(session["user_password_checked"]).to be true
         expect(session["user_remember_me"]).to be false
         expect(session["user_return_to"]).to be nil
       end
 
       it "should store remember me in session if set" do
-        post :create, :params => { user: { email: authy_user.email, password: authy_user.password, remember_me: '1' } }
-        expect(session["user_id"]).to eq(authy_user.id)
+        post :create, :params => { user: { email: twilio_verify_user.email, password: twilio_verify_user.password, remember_me: '1' } }
+        expect(session["user_id"]).to eq(twilio_verify_user.id)
         expect(session["user_password_checked"]).to be true
         expect(session["user_remember_me"]).to be true
         expect(session["user_return_to"]).to be nil
@@ -45,32 +45,32 @@ RSpec.describe Devise::SessionsController, type: :controller, skip: true do
       it "should keep user_return_to if set" do
         post :create, :params => {
           user: {
-            email: authy_user.email,
-            password: authy_user.password,
+            email: twilio_verify_user.email,
+            password: twilio_verify_user.password,
             remember_me: "1"
           }
         }, :session => {
           user_return_to: "/dashboard"
         }
-        expect(session["user_id"]).to eq(authy_user.id)
+        expect(session["user_id"]).to eq(twilio_verify_user.id)
         expect(session["user_password_checked"]).to be true
         expect(session["user_remember_me"]).to be true
         expect(session["user_return_to"]).to be "/dashboard"
       end
 
       it "should not sign the user in yet" do
-        post :create, :params => { user: { email: authy_user.email, password: authy_user.password } }
+        post :create, :params => { user: { email: twilio_verify_user.email, password: twilio_verify_user.password } }
         expect(subject.current_user).to be nil
       end
 
       it "should sign the user in and redirect to root if user is remembered" do
         cookies.signed[:remember_device] = {
-          :value => {expires: Time.now.to_i, id: authy_user.id}.to_json,
+          :value => {expires: Time.now.to_i, id: twilio_verify_user.id}.to_json,
           :secure => false,
           :expires => User.authy_remember_device.from_now
         }
-        post :create, :params => { user: { email: authy_user.email, password: authy_user.password } }
-        expect(subject.current_user).to eq(authy_user)
+        post :create, :params => { user: { email: twilio_verify_user.email, password: twilio_verify_user.password } }
+        expect(subject.current_user).to eq(twilio_verify_user)
         expect(response).to redirect_to(root_path)
       end
     end

@@ -2,7 +2,7 @@
 
 RSpec.describe User, type: :model, skip: true do
   describe "with a user with an authy id" do
-    let!(:user) { create(:authy_user) }
+    let!(:user) { create(:twilio_verify_user) }
 
     describe "User#find_by_authy_id" do
       it "should find the user" do

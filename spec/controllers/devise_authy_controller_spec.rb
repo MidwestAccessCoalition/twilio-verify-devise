@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller, skip: true do
-  let(:user) { create(:authy_user) }
+  let(:user) { create(:twilio_verify_user) }
   before(:each) { request.env["devise.mapping"] = Devise.mappings[:user] }
 
   describe "first step of authentication not complete" do
@@ -713,7 +713,7 @@ RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller, skip: tr
           # It is valid for more than one user to share an authy_id
           # https://github.com/MidwestAccessCoalition/twilio-verify-devise/issues/143
           before(:each) do
-            @other_user = create(:authy_user, :authy_id => user.authy_id)
+            @other_user = create(:twilio_verify_user, :authy_id => user.authy_id)
             cookies.signed[:remember_device] = {
               :value => {expires: Time.now.to_i, id: user.id}.to_json,
               :secure => false,
