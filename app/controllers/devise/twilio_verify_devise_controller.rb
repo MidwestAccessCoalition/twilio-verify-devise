@@ -22,10 +22,6 @@ class Devise::TwilioVerifyDeviseController < DeviseController
   include Devise::Controllers::Helpers
 
   def GET_verify_twilio_verify
-    if resource_class.authy_enable_onetouch
-      approval_request = send_one_touch_request(@resource.authy_id)['approval_request']
-      @onetouch_uuid = approval_request['uuid'] if approval_request.present?
-    end
     render :verify_twilio_verify
   end
 

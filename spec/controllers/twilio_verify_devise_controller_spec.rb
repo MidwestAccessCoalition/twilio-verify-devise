@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller, skip: true do
+RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller do
   let(:user) { create(:authy_user) }
   before(:each) { request.env["devise.mapping"] = Devise.mappings[:user] }
 
@@ -11,14 +11,9 @@ RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller, skip: tr
           get :GET_verify_twilio_verify
           expect(response).to redirect_to(root_path)
         end
-
-        it "should not make a OneTouch request" do
-          expect(Authy::OneTouch).not_to receive(:send_approval_request)
-          get :GET_verify_twilio_verify
-        end
       end
 
-      describe "#POST_verify_twilio_verify" do
+      describe "#POST_verify_twilio_verify", skip: true do
         it "should redirect to the root_path" do
           post :POST_verify_twilio_verify
           expect(response).to redirect_to(root_path)
@@ -39,14 +34,9 @@ RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller, skip: tr
           get :GET_verify_twilio_verify
           expect(response).to redirect_to(root_path)
         end
-
-        it "should not make a OneTouch request" do
-          expect(Authy::OneTouch).not_to receive(:send_approval_request)
-          get :GET_verify_twilio_verify
-        end
       end
 
-      describe "#POST_verify_twilio_verify" do
+      describe "#POST_verify_twilio_verify", skip: true do
         it "should redirect to the root_path" do
           post :POST_verify_twilio_verify
           expect(response).to redirect_to(root_path)
@@ -71,32 +61,9 @@ RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller, skip: tr
         get :GET_verify_twilio_verify
         expect(response).to render_template('verify_twilio_verify')
       end
-
-      it "should not make a OneTouch request" do
-        expect(Authy::OneTouch).not_to receive(:send_approval_request)
-        get :GET_verify_twilio_verify
-      end
-
-      describe "when OneTouch is enabled" do
-        before(:each) do
-          Devise.authy_enable_onetouch = true
-        end
-
-        after(:each) do
-          Devise.authy_enable_onetouch = false
-        end
-
-        it "should make a OneTouch request and assign the uuid" do
-          expect(Authy::OneTouch).to receive(:send_approval_request)
-                                 .with(id: user.authy_id, message: 'Request to Login')
-                                 .and_return('approval_request' => { 'uuid' => 'uuid' }).once
-          get :GET_verify_twilio_verify
-          expect(assigns[:onetouch_uuid]).to eq('uuid')
-        end
-      end
     end
 
-    describe "POST #verify_twilio_verify" do
+    describe "POST #verify_twilio_verify", skip: true do
       let(:verify_success) { double("Authy::Response", :ok? => true) }
       let(:verify_failure) { double("Authy::Response", :ok? => false) }
       let(:valid_authy_token) { rand(0..999999).to_s.rjust(6, '0') }
@@ -244,7 +211,7 @@ RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller, skip: tr
     end
   end
 
-  describe "enabling/disabling authy" do
+  describe "enabling/disabling authy", skip: true do
     describe "with no-one logged in" do
       it "GET #enable_twilio_verify should redirect to sign in" do
         get :GET_enable_twilio_verify
@@ -646,7 +613,7 @@ RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller, skip: tr
     end
   end
 
-  describe "requesting authentication tokens" do
+  describe "requesting authentication tokens", skip: true do
     describe "without a user" do
       it "Should not request sms if user couldn't be found" do
         expect(Authy::API).not_to receive(:request_sms)
