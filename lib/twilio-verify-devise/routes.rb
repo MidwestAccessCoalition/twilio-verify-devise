@@ -15,8 +15,6 @@ module ActionDispatch::Routing
       match "/#{mapping.path_names[:verify_twilio_verify_installation]}", :controller => controllers[:twilio_verify_devise], :action => :GET_verify_twilio_verify_installation, :as => :verify_twilio_verify_installation, :via => :get
       match "/#{mapping.path_names[:verify_twilio_verify_installation]}", :controller => controllers[:twilio_verify_devise], :action => :POST_verify_twilio_verify_installation, :as => nil, :via => :post
 
-      match "/#{mapping.path_names[:authy_onetouch_status]}", :controller => controllers[:twilio_verify_devise], :action => :GET_authy_onetouch_status, as: :authy_onetouch_status, via: :get
-
       match "/#{mapping.path_names[:request_sms]}", :controller => controllers[:twilio_verify_devise], :action => :request_sms, :as => :request_sms, :via => :post
       match "/#{mapping.path_names[:request_phone_call]}", :controller => controllers[:twilio_verify_devise], :action => :request_phone_call, :as => :request_phone_call, :via => :post
     end
