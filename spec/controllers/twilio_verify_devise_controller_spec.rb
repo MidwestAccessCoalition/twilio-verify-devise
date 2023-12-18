@@ -11,11 +11,6 @@ RSpec.describe Devise::TwilioVerifyDeviseController, type: :controller do
           get :GET_verify_twilio_verify
           expect(response).to redirect_to(root_path)
         end
-
-        it "should not make a OneTouch request" do
-          expect(Authy::OneTouch).not_to receive(:send_approval_request)
-          get :GET_verify_twilio_verify
-        end
       end
 
       describe "#POST_verify_twilio_verify", skip: true do
