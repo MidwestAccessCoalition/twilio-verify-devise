@@ -3,7 +3,7 @@ class Devise::TwilioVerifyDeviseController < DeviseController
     :request_phone_call, :request_sms
   ]
   prepend_before_action :find_resource_and_require_password_checked, :only => [
-    :GET_verify_twilio_verify, :POST_verify_twilio_verify, :GET_authy_onetouch_status
+    :GET_verify_twilio_verify, :POST_verify_twilio_verify
   ]
 
   prepend_before_action :check_resource_has_authy_id, :only => [
@@ -136,24 +136,6 @@ class Devise::TwilioVerifyDeviseController < DeviseController
         @authy_qr_code = response.qr_code
       end
       handle_invalid_token :verify_twilio_verify_installation, :not_enabled
-    end
-  end
-
-  def GET_authy_onetouch_status
-    response = Authy::OneTouch.approval_request_status(:uuid => params[:onetouch_uuid])
-    status = response.dig('approval_request', 'status')
-    case status
-    when 'pending'
-      head 202
-    when 'approved'
-      remember_device(@resource.id) if params[:remember_device].to_i == 1
-      remember_user
-      record_authy_authentication
-      render json: { redirect: after_sign_in_path_for(@resource) }
-    when 'denied'
-      head :unauthorized
-    else
-      head :internal_server_error
     end
   end
 
