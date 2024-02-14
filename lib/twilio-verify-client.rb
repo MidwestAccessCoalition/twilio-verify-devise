@@ -22,7 +22,7 @@ class TwilioVerifyClient
            .entities(identity)
            .new_factors
            .create(
-             friendly_name:,
+             friendly_name: friendly_name,
              factor_type: 'totp'
            )
   end
