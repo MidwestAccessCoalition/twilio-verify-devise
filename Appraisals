@@ -9,3 +9,15 @@ appraise "rails-6" do
     gem 'database_cleaner', :require => false
   end
 end
+
+appraise "rails-6-1" do
+  gem "rails", "~> 6.1.0"
+  gem "sqlite3", "~> 1.4"
+  gem "net-smtp"
+
+  group :development, :test do
+    gem 'factory_bot_rails', :require => false
+    gem 'rspec-rails', :require => false
+    gem 'database_cleaner', :require => false
+  end
+end
