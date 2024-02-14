@@ -16,7 +16,7 @@ appraise "rails-6-1" do
   gem "net-smtp"
 
   group :development, :test do
-    gem 'factory_bot_rails'
+    gem 'factory_girl_rails', :require => false
     gem 'rspec-rails', :require => false
     gem 'database_cleaner', :require => false
   end
