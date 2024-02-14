@@ -2,6 +2,7 @@ require 'active_support/concern'
 require 'active_support/core_ext/integer/time'
 require 'devise'
 require 'authy'
+require_relative './twilio-verify-client'
 
 module Devise
   mattr_accessor :authy_remember_device, :authy_enable_onetouch, :authy_enable_qr_code

@@ -94,6 +94,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
       it "Should render the second step of authentication" do
         get :GET_verify_authy
         expect(response).to render_template('verify_authy')
+        expect(assigns(:verify_client)).to be_an_instance_of TwilioVerifyClient
       end
 
       it "should not make a OneTouch request" do

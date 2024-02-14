@@ -1,4 +1,6 @@
 class Devise::DeviseAuthyController < DeviseController
+  
+
   prepend_before_action :find_resource, :only => [
     :request_phone_call, :request_sms
   ]
@@ -18,6 +20,8 @@ class Devise::DeviseAuthyController < DeviseController
     :GET_enable_authy, :POST_enable_authy, :GET_verify_authy_installation,
     :POST_verify_authy_installation, :POST_disable_authy
   ]
+
+  before_action :initialize_twilio_verify_client
 
   include Devise::Controllers::Helpers
 
@@ -246,5 +250,9 @@ class Devise::DeviseAuthyController < DeviseController
     if session.delete("#{resource_name}_remember_me") == true && @resource.respond_to?(:remember_me=)
       @resource.remember_me = true
     end
+  end
+
+  def initialize_twilio_verify_client
+    @verify_client = TwilioVerifyClient.new
   end
 end
