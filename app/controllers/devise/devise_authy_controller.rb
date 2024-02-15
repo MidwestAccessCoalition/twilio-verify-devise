@@ -181,7 +181,7 @@ class Devise::DeviseAuthyController < DeviseController
     status = @verify_client.send_sms_verification_code(mfa_config.country_code, mfa_config.cellphone)
 
     message = status == 'pending' ? 'Token was sent.' : 'Token failed to send.'
-    render json: { sent: status == 'pending', message: }
+    render json: { sent: status == 'pending', message: message }
   end
 
   private
