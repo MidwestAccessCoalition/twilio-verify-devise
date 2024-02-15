@@ -9,16 +9,18 @@ class Devise::DeviseAuthyController < DeviseController
   ]
 
   prepend_before_action :check_resource_has_authy_id, :only => [
-    :GET_verify_authy_installation, :POST_verify_authy_installation
+    :GET_verify_authy_installation, :POST_verify_authy_installation,
+    :GET_mfa_qr_code
   ]
 
   prepend_before_action :check_resource_not_authy_enabled, :only => [
-    :GET_verify_authy_installation, :POST_verify_authy_installation
+    :GET_verify_authy_installation, :POST_verify_authy_installation,
+    :GET_mfa_qr_code
   ]
 
   prepend_before_action :authenticate_scope!, :only => [
     :GET_enable_authy, :POST_enable_authy, :GET_verify_authy_installation,
-    :POST_verify_authy_installation, :POST_disable_authy, :GET_mfa_qr_code
+    :POST_verify_authy_installation, :POST_disable_authy, 
   ]
 
   before_action :initialize_twilio_verify_client
