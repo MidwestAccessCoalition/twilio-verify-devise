@@ -16,10 +16,6 @@ FactoryBot.define do
     factory :authy_user do
       authy_id { generate(:authy_id) }
       authy_enabled { true }
-      mfaable
-    end
-
-    factory :mfaable do
       mfa_config
     end
   end

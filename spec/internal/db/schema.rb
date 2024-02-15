@@ -36,7 +36,7 @@ ActiveRecord::Schema.define do
   end
 
   create_table :mfa_configs, force: :cascade do|t|
-    t.references "users", null: false, foreign_key: true
+    t.references :user, null: false, foreign_key: true
     t.string :verify_identity
     t.string :verify_factor_id
     t.string :qr_code_uri

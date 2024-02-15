@@ -18,6 +18,7 @@ require "webmock/rspec"
 require "generator_spec"
 require "database_cleaner"
 require "./spec/factories.rb"
+require "./spec/support/faker.rb"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
