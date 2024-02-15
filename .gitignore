@@ -43,3 +43,5 @@ initializers/authy.rb
 .byebug_history
 
 .rspec_status
+
+.vscode
