@@ -17,6 +17,7 @@ require "rspec/rails"
 require "webmock/rspec"
 require "generator_spec"
 require "database_cleaner"
+require "shoulda-matchers"
 require "./spec/factories.rb"
 require "./spec/support/faker.rb"
 
