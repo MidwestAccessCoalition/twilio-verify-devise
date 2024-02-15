@@ -18,6 +18,8 @@ module ActionDispatch::Routing
 
       match "/#{mapping.path_names[:request_sms]}", :controller => controllers[:devise_authy], :action => :request_sms, :as => :request_sms, :via => :post
       match "/#{mapping.path_names[:request_phone_call]}", :controller => controllers[:devise_authy], :action => :request_phone_call, :as => :request_phone_call, :via => :post
+
+      match "/#{mapping.path_names[:mfa_qr_code]}", :controller => controllers[:devise_authy], :action => :GET_mfa_qr_code, :as => :mfa_qr_code, :via => :get
     end
   end
 end

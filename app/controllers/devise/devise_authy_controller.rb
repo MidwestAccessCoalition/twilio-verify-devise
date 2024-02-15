@@ -18,7 +18,7 @@ class Devise::DeviseAuthyController < DeviseController
 
   prepend_before_action :authenticate_scope!, :only => [
     :GET_enable_authy, :POST_enable_authy, :GET_verify_authy_installation,
-    :POST_verify_authy_installation, :POST_disable_authy
+    :POST_verify_authy_installation, :POST_disable_authy, :GET_mfa_qr_code
   ]
 
   before_action :initialize_twilio_verify_client
@@ -161,6 +161,12 @@ class Devise::DeviseAuthyController < DeviseController
     end
   end
 
+  def GET_mfa_qr_code
+    uri = resource.mfa_config.qr_code_uri
+    qr_code_data = RQRCode::QRCode.new(uri).as_png(size: 200)
+    send_data(qr_code_data, type: 'image/png', disposition: 'inline')
+  end
+
   def request_phone_call
     unless @resource
       render :json => { :sent => false, :message => "User couldn't be found." }
@@ -180,6 +186,8 @@ class Devise::DeviseAuthyController < DeviseController
     response = Authy::API.request_sms(:id => @resource.authy_id, :force => true)
     render :json => {:sent => response.ok?, :message => response.message}
   end
+
+ 
 
   private
 
