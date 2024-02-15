@@ -17,7 +17,6 @@ require "rspec/rails"
 require "webmock/rspec"
 require "generator_spec"
 require "database_cleaner"
-require "shoulda-matchers"
 require "./spec/factories.rb"
 require "./spec/support/faker.rb"
 
@@ -53,4 +52,11 @@ RSpec.configure do |config|
   end
 
   config.include FactoryBot::Syntax::Methods
+end
+
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
 end
