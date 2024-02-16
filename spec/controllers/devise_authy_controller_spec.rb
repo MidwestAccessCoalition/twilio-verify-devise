@@ -552,6 +552,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
       describe "POST verify_authy_installation" do
         let(:token) { "000000" }
+        let(:totp_approved_status) { 'verified' }
 
         describe "with a user without an authy id" do
           let(:user) { create(:user) }
@@ -573,11 +574,12 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           describe "successful verification" do
             before(:each) do
-              expect(Authy::API).to receive(:verify).with({
-                :id => user.authy_id,
-                :token => token,
-                :force => true
-              }).and_return(double("Authy::Response", :ok? => true))
+              expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_registration)
+                .with(
+                  user.mfa_config.verify_identity,
+                  user.mfa_config.verify_factor_id,
+                  token
+                ).and_return(totp_approved_status)
               post :POST_verify_authy_installation, :params => { :token => token, :remember_device => '0' }
             end
 
@@ -602,11 +604,12 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           describe "successful verification with remember device" do
             before(:each) do
-              expect(Authy::API).to receive(:verify).with({
-                :id => user.authy_id,
-                :token => token,
-                :force => true
-              }).and_return(double("Authy::Response", :ok? => true))
+              expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_registration)
+                .with(
+                  user.mfa_config.verify_identity,
+                  user.mfa_config.verify_factor_id,
+                  token
+                ).and_return(totp_approved_status)
               post :POST_verify_authy_installation, :params => { :token => token, :remember_device => '1' }
             end
 
@@ -632,12 +635,22 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           end
 
           describe "unsuccessful verification" do
+            let(:totp_invalid_status) { 'invalid' }
             before(:each) do
-              expect(Authy::API).to receive(:verify).with({
-                :id => user.authy_id,
-                :token => token,
-                :force => true
-              }).and_return(double("Authy::Response", :ok? => false))
+              expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_registration)
+                .with(
+                  user.mfa_config.verify_identity,
+                  user.mfa_config.verify_factor_id,
+                  token
+                ).and_return(totp_invalid_status)
+
+              expect_any_instance_of(TwilioVerifyClient).to receive(:check_sms_verification_code)
+                .with(
+                  user.mfa_config.country_code,
+                  user.mfa_config.cellphone,
+                  token
+                ).and_raise(StandardError, '20404')
+
               post :POST_verify_authy_installation, :params => { :token => token }
             end
 
@@ -649,31 +662,6 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
             it "should set an error flash and render verify_authy_installation" do
               expect(response).to render_template('verify_authy_installation')
               expect(flash[:error]).to eq('Something went wrong while enabling two factor authentication')
-            end
-          end
-
-          describe "unsuccessful verification with qr codes turned on" do
-            before(:each) do
-              Devise.authy_enable_qr_code = true
-            end
-
-            after(:each) do
-              Devise.authy_enable_qr_code = false
-            end
-
-            it "should hit API for a QR code" do
-              expect(Authy::API).to receive(:verify).with({
-                :id => user.authy_id,
-                :token => token,
-                :force => true
-              }).and_return(double("Authy::Response", :ok? => false))
-              expect(Authy::API).to receive(:request_qr_code).with(
-                :id => user.authy_id
-              ).and_return(double("Authy::Request", :qr_code => 'https://example.com/qr.png'))
-
-              post :POST_verify_authy_installation, :params => { :token => token }
-              expect(response).to render_template('verify_authy_installation')
-              expect(assigns[:authy_qr_code]).to eq('https://example.com/qr.png')
             end
           end
         end
