@@ -661,7 +661,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
             it "should set an error flash and render verify_authy_installation" do
               expect(response).to render_template('verify_authy_installation')
-              expect(flash[:error]).to eq('Something went wrong while enabling two factor authentication')
+              expect(flash[:error]).to eq('The entered token is invalid')
             end
           end
         end
