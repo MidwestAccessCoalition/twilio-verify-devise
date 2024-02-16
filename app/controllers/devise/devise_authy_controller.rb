@@ -112,11 +112,9 @@ class Devise::DeviseAuthyController < DeviseController
     redirect_to after_authy_disabled_path_for(resource)
   end
 
+  # The verify_authy_installation endpoints are for verification on registration. Verification
+  # on login is handled by the verify_authy methods (the ones without 'installation' in the name).
   def GET_verify_authy_installation
-    if resource_class.authy_enable_qr_code
-      response = Authy::API.request_qr_code(id: resource.authy_id)
-      @authy_qr_code = response.qr_code
-    end
     render :verify_authy_installation
   end
 
