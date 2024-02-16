@@ -173,6 +173,14 @@ class Devise::DeviseAuthyController < DeviseController
 
   private
 
+  def delete_entity(identity)
+    @verify_client.delete_entity(identity) unless identity.blank?
+  rescue StandardError => e
+    # 20404 means the resource does not exist. This can happen if an old unverified factor has
+    # already been cleaned up (i.e. deleted) by Verify.
+    raise e unless e.message.include?('20404')
+  end
+
   def authenticate_scope!
     send(:"authenticate_#{resource_name}!", :force => true)
     self.resource = send("current_#{resource_name}")
@@ -206,14 +214,6 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   protected
-
-  def delete_entity(identity)
-    @verify_client.delete_entity(identity) unless identity.blank?
-  rescue StandardError => e
-    # 20404 means the resource does not exist. This can happen if an old unverified factor has
-    # already been cleaned up (i.e. deleted) by Verify.
-    raise e unless e.message.include?('20404')
-  end
 
   def after_authy_enabled_path_for(resource)
     root_path
