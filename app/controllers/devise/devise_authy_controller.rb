@@ -82,33 +82,23 @@ class Devise::DeviseAuthyController < DeviseController
     end
   end
 
-  # Disable 2FA
+  # Disables MFA and deletes all MFA config for the resource across all factors.
   def POST_disable_authy
-    authy_id = resource.authy_id
-    resource.assign_attributes(:authy_enabled => false, :authy_id => nil)
-    resource.save(:validate => false)
+    mfa_config = resource.mfa_config
 
-    other_resource = resource.class.find_by(:authy_id => authy_id)
-    if other_resource
-      # If another resource has the same authy_id, do not delete the user from
-      # the API.
+    begin
+      delete_entity(mfa_config.verify_identity)
+      mfa_config.delete
+      resource.assign_attributes(authy_enabled: false, authy_id: nil)
+      resource.save(validate: false)
+
       forget_device
       set_flash_message(:notice, :disabled)
-    else
-      response = Authy::API.delete_user(:id => authy_id)
-      if response.ok?
-        forget_device
-        set_flash_message(:notice, :disabled)
-      else
-        # If deleting the user from the API fails, set everything back to what
-        # it was before.
-        # I'm not sure this is a good idea, but it was existing behaviour.
-        # Could be changed in a major version bump.
-        resource.assign_attributes(:authy_enabled => true, :authy_id => authy_id)
-        resource.save(:validate => false)
-        set_flash_message(:error, :not_disabled)
-      end
+    rescue StandardError => e
+      logger.error "Disabling MFA failed: #{e}"
+      set_flash_message(:error, :not_disabled)
     end
+
     redirect_to after_authy_disabled_path_for(resource)
   end
 
@@ -216,6 +206,14 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   protected
+
+  def delete_entity(identity)
+    @verify_client.delete_entity(identity) unless identity.blank?
+  rescue StandardError => e
+    # 20404 means the resource does not exist. This can happen if an old unverified factor has
+    # already been cleaned up (i.e. deleted) by Verify.
+    raise e unless e.message.include?('20404')
+  end
 
   def after_authy_enabled_path_for(resource)
     root_path
