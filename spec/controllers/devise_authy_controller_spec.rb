@@ -155,7 +155,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           it "should redirect to the root_path and set a flash notice" do
             expect(response).to redirect_to(root_path)
-            expect(flash[:notice]).not_to be_nil
+            expect(flash[:notice]).to be_nil # we don't have a default signin message
             expect(flash[:error]).to be nil
           end
 
