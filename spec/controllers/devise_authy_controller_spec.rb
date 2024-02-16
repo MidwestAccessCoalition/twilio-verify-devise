@@ -438,7 +438,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
                        sid: 'sid',
                        binding: { 'uri' => 'uri' })
               )
-            post :POST_enable_authy, params: { cellphone:, country_code: }
+            post :POST_enable_authy, params: { cellphone: cellphone, country_code: country_code }
           end
 
           it "save the authy_id to the user" do
@@ -467,7 +467,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               )
             expect(user).to receive(:save).and_return(false)
             expect(subject).to receive(:current_user).at_least(:once).and_return(user)
-            post :POST_enable_authy, params: { cellphone:, country_code: }
+            post :POST_enable_authy, params: { cellphone: cellphone, country_code: country_code }
           end
 
           it "should set an error flash" do
