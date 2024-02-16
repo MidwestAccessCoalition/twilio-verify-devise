@@ -62,24 +62,27 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def POST_enable_authy
-    @authy_user = Authy::API.register_user(
-      :email => resource.email,
-      :cellphone => params[:cellphone],
-      :country_code => params[:country_code]
+    mfa_config = MfaConfig.find_or_initialize_by(user: resource)
+    mfa_config.update!(
+      cellphone: params[:cellphone],
+      country_code: params[:country_code]
     )
 
-    if @authy_user.ok?
-      resource.authy_id = @authy_user.id
-      if resource.save
-        redirect_to [resource_name, :verify_authy_installation] and return
-      else
-        set_flash_message(:error, :not_enabled)
-        redirect_to after_authy_enabled_path_for(resource) and return
-      end
+    register_totp(mfa_config) unless mfa_config.verify_identity.present?
+
+    # authy_id must be set for authy-devise gem to recognize that MFA is enabled. The exact value
+    # doesn't matter since we're no longer calling Authy. Uses random uuid to ensure uniqueness.
+    resource.authy_id = SecureRandom.uuid
+    if resource.save
+      redirect_to [resource_name, :verify_authy_installation] and return
     else
       set_flash_message(:error, :not_enabled)
-      render :enable_authy
+      redirect_to after_authy_enabled_path_for(resource) and return
     end
+  rescue StandardError => e
+    logger.error "Enabling MFA failed: #{e}"
+    set_flash_message(:error, :not_enabled)
+    redirect_to after_authy_enabled_path_for(resource) and return
   end
 
   # Disables MFA and deletes all MFA config for the resource across all factors.
@@ -172,6 +175,19 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   private
+
+  def register_totp(mfa_config)
+    identity = SecureRandom.uuid
+    friendly_name = 'Piggybank Cashbox'
+
+    new_factor = @verify_client.register_totp_factor(identity, friendly_name)
+
+    mfa_config.update!(
+      verify_identity: new_factor.identity,
+      verify_factor_id: new_factor.sid,
+      qr_code_uri: new_factor.binding['uri']
+    )
+  end
 
   def delete_entity(identity)
     @verify_client.delete_entity(identity) unless identity.blank?
