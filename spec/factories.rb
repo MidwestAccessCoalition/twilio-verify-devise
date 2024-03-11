@@ -33,7 +33,7 @@ FactoryBot.define do
   end
 
   factory :mfa_config do
-    user
+    resource { association :user } 
     verify_identity { "YF#{Faker::Alphanumeric.alpha(number: 32)}" }
     verify_factor_id { Faker::Alphanumeric.alpha(number: 32) }
     qr_code_uri { 'https://example.com' }
