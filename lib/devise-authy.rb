@@ -1,3 +1,4 @@
+require 'active_support' # is required before using anything inside active_support: see https://github.com/rails/rails/issues/49495#issuecomment-1749085658
 require 'active_support/concern'
 require 'active_support/core_ext/integer/time'
 require 'devise'
