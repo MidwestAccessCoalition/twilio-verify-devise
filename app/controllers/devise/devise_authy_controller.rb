@@ -172,7 +172,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def request_sms
-    unless @resource
+    unless @resource && @resource.mfa_config
       render json: { sent: false, message: "User couldn't be found." }
       return
     end
