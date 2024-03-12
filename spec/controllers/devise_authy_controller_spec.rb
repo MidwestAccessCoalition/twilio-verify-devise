@@ -778,6 +778,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     describe "without a user" do
       it "Should not request sms if user couldn't be found" do
         expect(Authy::API).not_to receive(:request_sms)
+        expect_any_instance_of(TwilioVerifyClient).not_to receive(:send_sms_verification_code)
 
         post :request_sms
 
@@ -800,36 +801,71 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     end
 
     describe "#request_sms" do
-      before(:each) do
-        expect(Authy::API).to receive(:request_sms)
-          .with(:id => user.authy_id, :force => true)
-          .and_return(
-            double("Authy::Response", :ok? => true, :message => "Token was sent.")
-          )
-      end
-      describe "with a logged in user" do
-        before(:each) { sign_in user }
+      context 'successfully' do 
+        before(:each) do
+          expect_any_instance_of(TwilioVerifyClient).to receive(:send_sms_verification_code)
+            .with(user.mfa_config.country_code, user.mfa_config.cellphone)
+            .and_return('pending')
+        end
+    
+        describe "with a logged in user" do
+          before(:each) { sign_in user }
 
-        it "should send an SMS and respond with JSON" do
-          post :request_sms
-          expect(response.media_type).to eq('application/json')
-          body = JSON.parse(response.body)
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
 
-          expect(body['sent']).to be_truthy
-          expect(body['message']).to eq("Token was sent.")
+            expect(body['sent']).to be_truthy
+            expect(body['message']).to eq("Token was sent.")
+          end
+        end
+
+        describe "with a user_id in the session" do
+          before(:each) { session["user_id"] = user.id }
+
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
+
+            expect(body['sent']).to be_truthy
+            expect(body['message']).to eq("Token was sent.")
+          end
         end
       end
 
-      describe "with a user_id in the session" do
-        before(:each) { session["user_id"] = user.id }
+      context 'unsuccessfully' do 
+        before(:each) do
+          expect_any_instance_of(TwilioVerifyClient).to receive(:send_sms_verification_code)
+            .with(user.mfa_config.country_code, user.mfa_config.cellphone)
+            .and_return('not pending')
+        end
+    
+        describe "with a logged in user" do
+          before(:each) { sign_in user }
 
-        it "should send an SMS and respond with JSON" do
-          post :request_sms
-          expect(response.media_type).to eq('application/json')
-          body = JSON.parse(response.body)
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
 
-          expect(body['sent']).to be_truthy
-          expect(body['message']).to eq("Token was sent.")
+            expect(body['sent']).to be_falsey
+            expect(body['message']).to eq("Token failed to send.")
+          end
+        end
+
+        describe "with a user_id in the session" do
+          before(:each) { session["user_id"] = user.id }
+
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
+
+            expect(body['sent']).to be_falsey
+            expect(body['message']).to eq("Token failed to send.")
+          end
         end
       end
     end
