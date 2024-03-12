@@ -62,7 +62,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def POST_enable_authy
-    mfa_config = MfaConfig.find_or_initialize_by(user: resource)
+    mfa_config = MfaConfig.find_or_initialize_by(resource: resource)
     mfa_config.update!(
       cellphone: params[:cellphone],
       country_code: params[:country_code]
