@@ -162,13 +162,16 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def request_sms
-    if !@resource
-      render :json => {:sent => false, :message => "User couldn't be found."}
+    unless @resource && @resource.mfa_config
+      render json: { sent: false, message: "User couldn't be found." }
       return
     end
 
-    response = Authy::API.request_sms(:id => @resource.authy_id, :force => true)
-    render :json => {:sent => response.ok?, :message => response.message}
+    mfa_config = @resource.mfa_config
+    status = @verify_client.send_sms_verification_code(mfa_config.country_code, mfa_config.cellphone)
+
+    message = status == 'pending' ? 'Token was sent.' : 'Token failed to send.'
+    render json: { sent: status == 'pending', message: message }
   end
 
   private
