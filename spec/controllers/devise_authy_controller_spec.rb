@@ -739,6 +739,43 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
             expect(response).to redirect_to(root_path)
           end
         end
+
+        describe 'unsuccessfully but is inside transaction' do
+          before(:each) do
+            cookies.signed[:remember_device] = {
+              value: { expires: Time.now.to_i, id: user.id }.to_json,
+              secure: false,
+              expires: User.authy_remember_device.from_now
+            }
+            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+              .with(user.mfa_config.verify_identity)
+              .and_return(true)
+
+            expect_any_instance_of(User).to receive(:save)
+              .and_raise(StandardError)
+
+            post :POST_disable_authy
+          end
+
+          it 'should not disable 2FA' do
+            user.reload
+            expect(user.authy_id).not_to be nil
+            expect(user.authy_enabled).to be true
+          end
+
+          it 'should not delete the mfa config' do
+            expect(user.mfa_config).to_not be nil
+          end
+
+          it 'should not forget the device cookie' do
+            expect(cookies[:remember_device]).not_to be_nil
+          end
+
+          it 'should set a flash error and redirect' do
+            expect(flash[:error]).to eq('Something went wrong while disabling Multi-factor authentication')
+            expect(response).to redirect_to(root_path)
+          end
+        end
       end
     end
   end

@@ -88,9 +88,12 @@ class Devise::DeviseAuthyController < DeviseController
 
     begin
       delete_entity(mfa_config.verify_identity)
-      mfa_config.delete
-      resource.assign_attributes(authy_enabled: false, authy_id: nil)
-      resource.save(validate: false)
+
+      MfaConfig.transaction do 
+        mfa_config.delete
+        resource.assign_attributes(authy_enabled: false, authy_id: nil)
+        resource.save(validate: false)
+      end
 
       forget_device
       set_flash_message(:notice, :disabled)
