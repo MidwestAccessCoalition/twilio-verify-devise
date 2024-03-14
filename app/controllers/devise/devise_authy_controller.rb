@@ -25,11 +25,9 @@ class Devise::DeviseAuthyController < DeviseController
 
   include Devise::Controllers::Helpers
 
+  # The verify_authy endpoints are for verification on login. Verification after registration
+  # is handled by the verify_installation methods.
   def GET_verify_authy
-    if resource_class.authy_enable_onetouch
-      approval_request = send_one_touch_request(@resource.authy_id)['approval_request']
-      @onetouch_uuid = approval_request['uuid'] if approval_request.present?
-    end
     render :verify_authy
   end
 
@@ -164,13 +162,16 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def request_sms
-    if !@resource
-      render :json => {:sent => false, :message => "User couldn't be found."}
+    unless @resource && @resource.mfa_config
+      render json: { sent: false, message: "User couldn't be found." }
       return
     end
 
-    response = Authy::API.request_sms(:id => @resource.authy_id, :force => true)
-    render :json => {:sent => response.ok?, :message => response.message}
+    mfa_config = @resource.mfa_config
+    status = @verify_client.send_sms_verification_code(mfa_config.country_code, mfa_config.cellphone)
+
+    message = status == 'pending' ? 'Token was sent.' : 'Token failed to send.'
+    render json: { sent: status == 'pending', message: message }
   end
 
   private
