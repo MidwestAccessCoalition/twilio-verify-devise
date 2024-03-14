@@ -11,11 +11,6 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           get :GET_verify_authy
           expect(response).to redirect_to(root_path)
         end
-
-        it "should not make a OneTouch request" do
-          expect(Authy::OneTouch).not_to receive(:send_approval_request)
-          get :GET_verify_authy
-        end
       end
 
       describe "#POST_verify_authy" do
@@ -50,11 +45,6 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         it "should redirect to the root_path" do
           get :GET_verify_authy
           expect(response).to redirect_to(root_path)
-        end
-
-        it "should not make a OneTouch request" do
-          expect(Authy::OneTouch).not_to receive(:send_approval_request)
-          get :GET_verify_authy
         end
       end
 
@@ -95,29 +85,6 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         get :GET_verify_authy
         expect(response).to render_template('verify_authy')
         expect(assigns(:verify_client)).to be_an_instance_of TwilioVerifyClient
-      end
-
-      it "should not make a OneTouch request" do
-        expect(Authy::OneTouch).not_to receive(:send_approval_request)
-        get :GET_verify_authy
-      end
-
-      describe "when OneTouch is enabled" do
-        before(:each) do
-          Devise.authy_enable_onetouch = true
-        end
-
-        after(:each) do
-          Devise.authy_enable_onetouch = false
-        end
-
-        it "should make a OneTouch request and assign the uuid" do
-          expect(Authy::OneTouch).to receive(:send_approval_request)
-                                 .with(id: user.authy_id, message: 'Request to Login')
-                                 .and_return('approval_request' => { 'uuid' => 'uuid' }).once
-          get :GET_verify_authy
-          expect(assigns[:onetouch_uuid]).to eq('uuid')
-        end
       end
     end
 
@@ -706,6 +673,43 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
             user.reload
             expect(user.authy_id).not_to be nil
             expect(user.authy_enabled).to be true
+          end
+
+          it 'should not forget the device cookie' do
+            expect(cookies[:remember_device]).not_to be_nil
+          end
+
+          it 'should set a flash error and redirect' do
+            expect(flash[:error]).to eq('Something went wrong while disabling Multi-factor authentication')
+            expect(response).to redirect_to(root_path)
+          end
+        end
+
+        describe 'unsuccessfully but is inside transaction' do
+          before(:each) do
+            cookies.signed[:remember_device] = {
+              value: { expires: Time.now.to_i, id: user.id }.to_json,
+              secure: false,
+              expires: User.authy_remember_device.from_now
+            }
+            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+              .with(user.mfa_config.verify_identity)
+              .and_return(true)
+
+            expect_any_instance_of(User).to receive(:save)
+              .and_raise(StandardError)
+
+            post :POST_disable_authy
+          end
+
+          it 'should not disable 2FA' do
+            user.reload
+            expect(user.authy_id).not_to be nil
+            expect(user.authy_enabled).to be true
+          end
+
+          it 'should not delete the mfa config' do
+            expect(user.mfa_config).to_not be nil
           end
 
           it 'should not forget the device cookie' do
