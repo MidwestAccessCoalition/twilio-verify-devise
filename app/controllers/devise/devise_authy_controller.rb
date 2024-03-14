@@ -42,7 +42,7 @@ class Devise::DeviseAuthyController < DeviseController
     if token.ok?
       remember_device(@resource.id) if params[:remember_device].to_i == 1
       remember_user
-      record_authy_authentication
+      record_twilio_authentication
       respond_with resource, :location => after_sign_in_path_for(@resource)
     else
       handle_invalid_token :verify_authy, :invalid_token
@@ -125,7 +125,7 @@ class Devise::DeviseAuthyController < DeviseController
 
     if token_valid && resource.save
       remember_device(resource.id) if params[:remember_device].to_i == 1
-      record_authy_authentication
+      record_twilio_authentication
       set_flash_message(:notice, :enabled)
       redirect_to after_authy_verified_path_for(resource)
     else
@@ -142,7 +142,7 @@ class Devise::DeviseAuthyController < DeviseController
     when 'approved'
       remember_device(@resource.id) if params[:remember_device].to_i == 1
       remember_user
-      record_authy_authentication
+      record_twilio_authentication
       render json: { redirect: after_sign_in_path_for(@resource) }
     when 'denied'
       head :unauthorized
