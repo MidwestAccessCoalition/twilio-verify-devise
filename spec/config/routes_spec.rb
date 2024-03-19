@@ -41,6 +41,10 @@ RSpec.describe "routes with devise_authy", type: :controller do
     it "routes to devise_authy#GET_authy_onetouch_status" do
       expect(get: '/users/authy_onetouch_status').to route_to("devise/devise_authy#GET_authy_onetouch_status")
     end
+
+    it "routes to devise_authy#mfa_qr_code" do
+      expect(get: '/users/mfa_qr_code').to route_to("devise/devise_authy#GET_mfa_qr_code")
+    end
   end
 
   describe "with customised mapping" do
@@ -59,6 +63,7 @@ RSpec.describe "routes with devise_authy", type: :controller do
       expect(post: '/lockable_users/disable_authy').to route_to("devise/devise_authy#POST_disable_authy")
       expect(post: '/lockable_users/request-sms').to route_to("devise/devise_authy#request_sms")
       expect(post: '/lockable_users/request-phone-call').to route_to("devise/devise_authy#request_phone_call")
+      expect(get: '/lockable_users/mfa_qr_code').to route_to("devise/devise_authy#GET_mfa_qr_code")
     end
   end
 end
