@@ -190,8 +190,6 @@ class Devise::DeviseAuthyController < DeviseController
     render json: { sent: status == 'pending', message: message }
   end
 
- 
-
   private
 
   def authenticate_scope!
