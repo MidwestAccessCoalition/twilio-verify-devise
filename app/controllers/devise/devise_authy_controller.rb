@@ -182,7 +182,7 @@ class Devise::DeviseAuthyController < DeviseController
 
   def register_totp(mfa_config)
     identity = SecureRandom.uuid
-    friendly_name = 'Piggybank Cashbox'
+    friendly_name = 'Twilio Verify Devise TOTP'
 
     new_factor = @verify_client.register_totp_factor(identity, friendly_name)
 
