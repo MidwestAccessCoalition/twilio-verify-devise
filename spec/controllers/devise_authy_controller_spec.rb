@@ -445,6 +445,29 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
             expect(response).to redirect_to(root_path)
           end
         end
+
+        describe "with an unsuccessful registration to Twilio Verify" do
+          before(:each) do
+            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+              .and_raise(StandardError)
+
+            post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
+          end
+
+          it "does not update the authy_id" do
+            old_authy_id = user.authy_id
+            user.reload
+            expect(user.authy_id).to eq(old_authy_id)
+          end
+
+          it "shows an error flash" do
+            expect(flash[:error]).to eq("Something went wrong while enabling multi-factor authentication")
+          end
+
+          it "renders enable_authy page again" do
+            expect(response).to render_template('enable_authy')
+          end
+        end
       end
 
       describe "GET verify_authy_installation" do

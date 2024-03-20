@@ -60,27 +60,29 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def POST_enable_authy
-    mfa_config = MfaConfig.find_or_initialize_by(resource: resource)
-    mfa_config.update!(
-      cellphone: params[:cellphone],
-      country_code: params[:country_code]
-    )
+    begin
+      mfa_config = MfaConfig.find_or_initialize_by(resource: resource)
+      mfa_config.update!(
+        cellphone: params[:cellphone],
+        country_code: params[:country_code]
+      )
 
-    register_totp(mfa_config) unless mfa_config.verify_identity.present?
+      register_totp(mfa_config) unless mfa_config.verify_identity.present?
 
-    # authy_id must be set for authy-devise gem to recognize that MFA is enabled. The exact value
-    # doesn't matter since we're no longer calling Authy. Uses random uuid to ensure uniqueness.
-    resource.authy_id = SecureRandom.uuid
-    if resource.save
-      redirect_to [resource_name, :verify_authy_installation] and return
-    else
+      # authy_id must be set for authy-devise gem to recognize that MFA is enabled. The exact value
+      # doesn't matter since we're no longer calling Authy. Uses random uuid to ensure uniqueness.
+      resource.authy_id = SecureRandom.uuid
+      if resource.save
+        redirect_to [resource_name, :verify_authy_installation] and return
+      else
+        set_flash_message(:error, :not_enabled)
+        redirect_to after_authy_enabled_path_for(resource) and return
+      end
+    rescue StandardError => e
+      logger.error "Enabling MFA failed: #{e}"
       set_flash_message(:error, :not_enabled)
-      redirect_to after_authy_enabled_path_for(resource) and return
+      render :enable_authy
     end
-  rescue StandardError => e
-    logger.error "Enabling MFA failed: #{e}"
-    set_flash_message(:error, :not_enabled)
-    redirect_to after_authy_enabled_path_for(resource) and return
   end
 
   # Disables MFA and deletes all MFA config for the resource across all factors.
