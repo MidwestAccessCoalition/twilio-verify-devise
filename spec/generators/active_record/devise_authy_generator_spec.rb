@@ -21,6 +21,11 @@ RSpec.describe ActiveRecord::Generators::DeviseAuthyGenerator, type: :generator 
             contains "DeviseAuthyAddToUsers"
             contains "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
           end
+
+          migration "mfa_config_create.rb" do
+            contains "MfaConfigCreate"
+            contains "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
+          end
         end
       end
     }

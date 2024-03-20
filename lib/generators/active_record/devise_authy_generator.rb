@@ -7,6 +7,7 @@ module ActiveRecord
 
       def copy_devise_migration
         migration_template "migration.rb", "db/migrate/devise_authy_add_to_#{table_name}.rb", migration_version: migration_version
+        migration_template "mfa_migration.rb", "db/migrate/mfa_config_create.rb", migration_version: migration_version
       end
 
       private

@@ -41,4 +41,12 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe "with a user with an MfaConfig" do
+    let!(:user) { create(:authy_user) }
+
+    it 'should have an mfa config' do
+      expect(user.mfa_config).to be_an_instance_of(MfaConfig)
+    end
+  end
 end
