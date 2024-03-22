@@ -42,7 +42,7 @@ class Devise::DeviseAuthyController < DeviseController
     if token.ok?
       remember_device(@resource.id) if params[:remember_device].to_i == 1
       remember_user
-      record_authy_authentication
+      record_twilio_authentication
       respond_with resource, :location => after_sign_in_path_for(@resource)
     else
       handle_invalid_token :verify_authy, :invalid_token
@@ -117,25 +117,17 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def POST_verify_authy_installation
-    token = Authy::API.verify({
-      :id => self.resource.authy_id,
-      :token => params[:token],
-      :force => true
-    })
+    token_valid = registration_token_valid?(resource.mfa_config)
 
-    self.resource.authy_enabled = token.ok?
+    resource.authy_enabled = token_valid
 
-    if token.ok? && self.resource.save
-      remember_device(@resource.id) if params[:remember_device].to_i == 1
-      record_authy_authentication
+    if token_valid && resource.save
+      remember_device(resource.id) if params[:remember_device].to_i == 1
+      record_twilio_authentication
       set_flash_message(:notice, :enabled)
       redirect_to after_authy_verified_path_for(resource)
     else
-      if resource_class.authy_enable_qr_code
-        response = Authy::API.request_qr_code(id: resource.authy_id)
-        @authy_qr_code = response.qr_code
-      end
-      handle_invalid_token :verify_authy_installation, :not_enabled
+      handle_invalid_token :verify_authy_installation, :invalid_token
     end
   end
 
@@ -148,7 +140,7 @@ class Devise::DeviseAuthyController < DeviseController
     when 'approved'
       remember_device(@resource.id) if params[:remember_device].to_i == 1
       remember_user
-      record_authy_authentication
+      record_twilio_authentication
       render json: { redirect: after_sign_in_path_for(@resource) }
     when 'denied'
       head :unauthorized
@@ -181,6 +173,41 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   private
+
+  def registration_token_valid?(mfa_config)
+    totp_registration_valid?(mfa_config) || sms_token_valid?(mfa_config)
+  end
+
+  def totp_registration_valid?(mfa_config)
+    begin
+      status = @verify_client.validate_totp_registration(
+        mfa_config.verify_identity, mfa_config.verify_factor_id, params[:token]
+      )
+    rescue StandardError => e
+      # 60306 means the input token is too long.
+      raise e unless e.message.include?('60306')
+
+      status = 'invalid'
+    end
+    status == 'verified'
+  end
+
+  def sms_token_valid?(mfa_config)
+    begin
+      status = @verify_client.check_sms_verification_code(
+        mfa_config.country_code, mfa_config.cellphone, params[:token]
+      )
+    rescue StandardError => e
+      # 20404 means the resource does not exist. For SMS verification this happens when the wrong
+      # code is entered.
+      #
+      # 60200 means the input token is too long.
+      raise e unless e.message.include?('20404') || e.message.include?('60200')
+
+      status = 'invalid'
+    end
+    status == 'approved'
+  end
 
   def authenticate_scope!
     send(:"authenticate_#{resource_name}!", :force => true)
