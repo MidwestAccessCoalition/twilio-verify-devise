@@ -33,17 +33,11 @@ class Devise::DeviseAuthyController < DeviseController
 
   # verify 2fa
   def POST_verify_authy
-    token = Authy::API.verify({
-      :id => @resource.authy_id,
-      :token => params[:token],
-      :force => true
-    })
-
-    if token.ok?
+    if login_token_valid?(@resource.mfa_config)
       remember_device(@resource.id) if params[:remember_device].to_i == 1
       remember_user
       record_twilio_authentication
-      respond_with resource, :location => after_sign_in_path_for(@resource)
+      respond_with resource, location: after_sign_in_path_for(@resource)
     else
       handle_invalid_token :verify_authy, :invalid_token
     end
