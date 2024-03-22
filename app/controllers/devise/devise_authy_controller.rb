@@ -33,17 +33,11 @@ class Devise::DeviseAuthyController < DeviseController
 
   # verify 2fa
   def POST_verify_authy
-    token = Authy::API.verify({
-      :id => @resource.authy_id,
-      :token => params[:token],
-      :force => true
-    })
-
-    if token.ok?
+    if login_token_valid?(@resource.mfa_config)
       remember_device(@resource.id) if params[:remember_device].to_i == 1
       remember_user
       record_twilio_authentication
-      respond_with resource, :location => after_sign_in_path_for(@resource)
+      respond_with resource, location: after_sign_in_path_for(@resource)
     else
       handle_invalid_token :verify_authy, :invalid_token
     end
@@ -192,6 +186,48 @@ class Devise::DeviseAuthyController < DeviseController
       status = 'invalid'
     end
     status == 'verified'
+  end
+
+  def sms_token_valid?(mfa_config)
+    begin
+      status = @verify_client.check_sms_verification_code(
+        mfa_config.country_code, mfa_config.cellphone, params[:token]
+      )
+    rescue StandardError => e
+      # 20404 means the resource does not exist. For SMS verification this happens when the wrong
+      # code is entered.
+      #
+      # 60200 means the input token is too long.
+      raise e unless e.message.include?('20404') || e.message.include?('60200')
+
+      status = 'invalid'
+    end
+    status == 'approved'
+  end
+
+  def login_token_valid?(mfa_config)
+    totp_login_valid?(mfa_config) || sms_token_valid?(mfa_config)
+  end
+
+  def totp_login_valid?(mfa_config)
+    begin
+      status = @verify_client.validate_totp_token(
+        mfa_config.verify_identity, mfa_config.verify_factor_id, params[:token]
+      )
+    rescue StandardError => e
+      # 20404 means the resource does not exist. This can happen if an old unverified factor is
+      # cleaned up (i.e. deleted) by Verify. This is okay since the user can still use SMS.
+      #
+      # 60318 means the factor exists but cannot be validated because it wasn't verified during
+      # registration. This is okay since the user can still use SMS.
+      #
+      # 60306 means the input token is too long.
+      raise e unless e.message.include?('60318') || e.message.include?('60306') ||
+                     e.message.include?('20404')
+
+      status = 'invalid'
+    end
+    status == 'approved'
   end
 
   def sms_token_valid?(mfa_config)
