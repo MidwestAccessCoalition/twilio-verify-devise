@@ -122,7 +122,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           it "should redirect to the root_path and set a flash notice" do
             expect(response).to redirect_to(root_path)
-            expect(flash[:notice]).not_to be_nil
+            expect(flash[:notice]).to be_nil # we don't have a default signin message
             expect(flash[:error]).to be nil
           end
 
@@ -460,7 +460,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           end
 
           it "shows an error flash" do
-            expect(flash[:error]).to eq("Something went wrong while enabling two factor authentication")
+            expect(flash[:error]).to eq("Something went wrong while enabling multi-factor authentication")
           end
 
           it "renders enable_authy page again" do
@@ -561,7 +561,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
             it "should set a flash notice and redirect" do
               expect(response).to redirect_to(root_path)
-              expect(flash[:notice]).to eq('Two factor authentication was enabled')
+              expect(flash[:notice]).to eq('Multi-factor authentication was enabled')
             end
 
             it "should not set a remember_device cookie" do
@@ -589,7 +589,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
             end
             it "should set a flash notice and redirect" do
               expect(response).to redirect_to(root_path)
-              expect(flash[:notice]).to eq('Two factor authentication was enabled')
+              expect(flash[:notice]).to eq('Multi-factor authentication was enabled')
             end
 
             it "should set a signed remember_device cookie" do
@@ -635,93 +635,99 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
       end
 
       describe "POST disable_authy" do
-        describe "successfully" do
+        describe 'successfully' do
           before(:each) do
             cookies.signed[:remember_device] = {
-              :value => {expires: Time.now.to_i, id: user.id}.to_json,
-              :secure => false,
-              :expires => User.authy_remember_device.from_now
+              value: { expires: Time.now.to_i, id: user.id }.to_json,
+              secure: false,
+              expires: User.authy_remember_device.from_now
             }
-            expect(Authy::API).to receive(:delete_user)
-              .with(:id => user.authy_id)
-              .and_return(double("Authy::Response", :ok? => true))
+            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+              .with(user.mfa_config.verify_identity)
+              .and_return(true)
 
             post :POST_disable_authy
           end
 
-          it "should disable 2FA" do
+          it 'should disable 2FA' do
             user.reload
             expect(user.authy_id).to be nil
             expect(user.authy_enabled).to be false
           end
 
-          it "should forget the device cookie" do
+          it 'should forget the device cookie' do
             expect(response.cookies[:remember_device]).to be nil
           end
 
-          it "should set a flash notice and redirect" do
-            expect(flash.now[:notice]).to eq("Two factor authentication was disabled")
+          it 'should set a flash notice and redirect' do
+            expect(flash.now[:notice]).to eq('Multi-factor authentication was disabled')
             expect(response).to redirect_to(root_path)
           end
         end
 
-        describe "with more than one user using the same authy_id" do
-          # It is valid for more than one user to share an authy_id
-          # https://github.com/twilio/authy-devise/issues/143
+        describe 'unsuccessfully' do
           before(:each) do
-            @other_user = create(:authy_user, :authy_id => user.authy_id)
             cookies.signed[:remember_device] = {
-              :value => {expires: Time.now.to_i, id: user.id}.to_json,
-              :secure => false,
-              :expires => User.authy_remember_device.from_now
+              value: { expires: Time.now.to_i, id: user.id }.to_json,
+              secure: false,
+              expires: User.authy_remember_device.from_now
             }
-            expect(Authy::API).not_to receive(:delete_user)
+            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+              .with(user.mfa_config.verify_identity)
+              .and_raise(StandardError)
 
             post :POST_disable_authy
           end
 
-          it "should disable 2FA" do
-            user.reload
-            expect(user.authy_id).to be nil
-            expect(user.authy_enabled).to be false
-          end
-
-          it "should forget the device cookie" do
-            expect(response.cookies[:remember_device]).to be nil
-          end
-
-          it "should set a flash notice and redirect" do
-            expect(flash.now[:notice]).to eq("Two factor authentication was disabled")
-            expect(response).to redirect_to(root_path)
-          end
-        end
-
-        describe "unsuccessfully" do
-          before(:each) do
-            cookies.signed[:remember_device] = {
-              :value => {expires: Time.now.to_i, id: user.id}.to_json,
-              :secure => false,
-              :expires => User.authy_remember_device.from_now
-            }
-            expect(Authy::API).to receive(:delete_user)
-              .with(:id => user.authy_id)
-              .and_return(double("Authy::Response", :ok? => false))
-
-            post :POST_disable_authy
-          end
-
-          it "should not disable 2FA" do
+          it 'should not disable 2FA' do
             user.reload
             expect(user.authy_id).not_to be nil
             expect(user.authy_enabled).to be true
           end
 
-          it "should not forget the device cookie" do
+          it 'should not forget the device cookie' do
             expect(cookies[:remember_device]).not_to be_nil
           end
 
-          it "should set a flash error and redirect" do
-            expect(flash[:error]).to eq("Something went wrong while disabling two factor authentication")
+          it 'should set a flash error and redirect' do
+            expect(flash[:error]).to eq('Something went wrong while disabling Multi-factor authentication')
+            expect(response).to redirect_to(root_path)
+          end
+        end
+
+        describe 'unsuccessfully but is inside transaction' do
+          before(:each) do
+            cookies.signed[:remember_device] = {
+              value: { expires: Time.now.to_i, id: user.id }.to_json,
+              secure: false,
+              expires: User.authy_remember_device.from_now
+            }
+            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+              .with(user.mfa_config.verify_identity)
+              .and_return(true)
+
+            expect_any_instance_of(User).to receive(:save)
+              .and_raise(StandardError)
+
+            post :POST_disable_authy
+          end
+
+          it 'should not disable 2FA' do
+            user.reload
+            expect(user.authy_id).not_to be nil
+            expect(user.authy_enabled).to be true
+          end
+
+          it 'should not delete the mfa config' do
+            expect(user.mfa_config).to_not be nil
+          end
+
+          it 'should not forget the device cookie' do
+            expect(cookies[:remember_device]).not_to be_nil
+          end
+
+          it 'should set a flash error and redirect' do
+            expect(flash[:error]).to eq('Something went wrong while disabling Multi-factor authentication')
             expect(response).to redirect_to(root_path)
           end
         end
