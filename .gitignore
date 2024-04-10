@@ -44,4 +44,4 @@ initializers/authy.rb
 
 .rspec_status
 
-.vscode
+/.vscode
