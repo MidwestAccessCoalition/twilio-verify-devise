@@ -396,19 +396,21 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         let(:cellphone) { '3010008090' }
         let(:country_code) { '57' }
 
-        describe "with a successful registration to Authy" do
+        describe "with a successful creation of MfaConfig" do
           before(:each) do
-            expect(Authy::API).to receive(:register_user).with(
-              :email => user.email,
-              :cellphone => cellphone,
-              :country_code => country_code
-            ).and_return(double("Authy::User", :ok? => true, :id => "123"))
-            post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
+            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+              .and_return(
+                double('new_factor',
+                       identity: 'identity',
+                       sid: 'sid',
+                       binding: { 'uri' => 'uri' })
+              )
+            post :POST_enable_authy, params: { cellphone: cellphone, country_code: country_code }
           end
 
           it "save the authy_id to the user" do
             user.reload
-            expect(user.authy_id).to eq("123")
+            expect(user.authy_id).not_to be nil
           end
 
           it "should not enable the user yet" do
@@ -423,14 +425,16 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
         describe "but a user that can't be saved" do
           before(:each) do
+            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+              .and_return(
+                double('new_factor',
+                       identity: 'identity',
+                       sid: 'sid',
+                       binding: { 'uri' => 'uri' })
+              )
             expect(user).to receive(:save).and_return(false)
-            expect(subject).to receive(:current_user).and_return(user)
-            expect(Authy::API).to receive(:register_user).with(
-              :email => user.email,
-              :cellphone => cellphone,
-              :country_code => country_code
-            ).and_return(double("Authy::User", :ok? => true, :id => "123"))
-            post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
+            expect(subject).to receive(:current_user).at_least(:once).and_return(user)
+            post :POST_enable_authy, params: { cellphone: cellphone, country_code: country_code }
           end
 
           it "should set an error flash" do
@@ -442,13 +446,10 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           end
         end
 
-        describe "with an unsuccessful registration to Authy" do
+        describe "with an unsuccessful registration to Twilio Verify" do
           before(:each) do
-            expect(Authy::API).to receive(:register_user).with(
-              :email => user.email,
-              :cellphone => cellphone,
-              :country_code => country_code
-            ).and_return(double("Authy::User", :ok? => false))
+            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+              .and_raise(StandardError)
 
             post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
           end
