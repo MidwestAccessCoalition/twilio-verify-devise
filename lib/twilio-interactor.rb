@@ -1,4 +1,4 @@
-class TwilioRequestValidator
+class TwilioInteractor
 
   def initialize(verify_client)
     @verify_client = verify_client
