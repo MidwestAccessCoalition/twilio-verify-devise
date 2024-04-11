@@ -510,7 +510,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
               get :GET_verify_authy_installation
               expect(response).to render_template('verify_authy_installation')
-              expect(assigns[:authy_qr_code]).to_not be_nil;
+              expect(assigns[:verify_qr_code]).to_not be_nil;
             end
           end
         end
