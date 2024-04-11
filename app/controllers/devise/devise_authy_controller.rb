@@ -37,7 +37,7 @@ class Devise::DeviseAuthyController < DeviseController
 
   # verify 2fa
   def POST_verify_authy
-    if login_token_valid?(@resource.mfa_config)
+    if login_token_valid?(@resource.mfa_config, params[:token])
       remember_device(@resource.id) if params[:remember_device].to_i == 1
       remember_user
       record_twilio_authentication
