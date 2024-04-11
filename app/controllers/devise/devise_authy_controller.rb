@@ -1,5 +1,14 @@
 class Devise::DeviseAuthyController < DeviseController
-  
+
+  # we need to allow data: urls for GET_verify_authy_installation
+  content_security_policy only: :GET_verify_authy_installation do |policy|
+    # if you read policy.img_src, it also sets it to nil. so we need to know what it was before reading.
+    current_img_src = policy.img_src
+    # If no img_src is set at the app level, I don't see a reason to add ours
+    if current_img_src
+      policy.img_src :data, *current_img_src
+    end
+  end
 
   prepend_before_action :find_resource, :only => [
     :request_phone_call, :request_sms
@@ -20,6 +29,9 @@ class Devise::DeviseAuthyController < DeviseController
     :GET_enable_authy, :POST_enable_authy, :GET_verify_authy_installation,
     :POST_verify_authy_installation, :POST_disable_authy
   ]
+  
+
+
 
   before_action :initialize_twilio_verify_client
 
