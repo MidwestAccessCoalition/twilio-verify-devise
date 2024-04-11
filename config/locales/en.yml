@@ -19,10 +19,10 @@ en:
 
     devise_authy:
       user:
-        enabled: 'Two factor authentication was enabled'
-        not_enabled: 'Something went wrong while enabling two factor authentication'
-        disabled: 'Two factor authentication was disabled'
-        not_disabled: 'Something went wrong while disabling two factor authentication'
-        signed_in: 'Signed in with Authy successfully.'
-        already_enabled: 'Two factor authentication is already enabled.'
+        enabled: 'Multi-factor authentication was enabled'
+        not_enabled: 'Something went wrong while enabling multi-factor authentication'
+        disabled: 'Multi-factor authentication was disabled'
+        not_disabled: 'Something went wrong while disabling Multi-factor authentication'
+        signed_in: ''
+        already_enabled: 'Multi-factor authentication is already enabled.'
         invalid_token: 'The entered token is invalid'

@@ -23,6 +23,10 @@ class Devise::DeviseAuthyController < DeviseController
 
   before_action :initialize_twilio_verify_client
 
+  attr_reader :twilio_validator
+  delegate :registration_token_valid?, :register_totp, :delete_entity, :login_token_valid?,
+        to: :twilio_validator, private: true
+
   include Devise::Controllers::Helpers
 
   # The verify_authy endpoints are for verification on login. Verification after registration
@@ -54,53 +58,51 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def POST_enable_authy
-    @authy_user = Authy::API.register_user(
-      :email => resource.email,
-      :cellphone => params[:cellphone],
-      :country_code => params[:country_code]
-    )
+    begin
+      mfa_config = MfaConfig.find_or_initialize_by(resource: resource)
+      mfa_config.update!(
+        cellphone: params[:cellphone],
+        country_code: params[:country_code]
+      )
 
-    if @authy_user.ok?
-      resource.authy_id = @authy_user.id
+      register_totp(mfa_config) unless mfa_config.verify_identity.present?
+
+      # authy_id must be set for authy-devise gem to recognize that MFA is enabled. The exact value
+      # doesn't matter since we're no longer calling Authy. Uses random uuid to ensure uniqueness.
+      resource.authy_id = SecureRandom.uuid
       if resource.save
         redirect_to [resource_name, :verify_authy_installation] and return
       else
         set_flash_message(:error, :not_enabled)
         redirect_to after_authy_enabled_path_for(resource) and return
       end
-    else
+    rescue StandardError => e
+      logger.error "Enabling MFA failed: #{e}"
       set_flash_message(:error, :not_enabled)
       render :enable_authy
     end
   end
 
-  # Disable 2FA
+  # Disables MFA and deletes all MFA config for the resource across all factors.
   def POST_disable_authy
-    authy_id = resource.authy_id
-    resource.assign_attributes(:authy_enabled => false, :authy_id => nil)
-    resource.save(:validate => false)
+    mfa_config = resource.mfa_config
 
-    other_resource = resource.class.find_by(:authy_id => authy_id)
-    if other_resource
-      # If another resource has the same authy_id, do not delete the user from
-      # the API.
+    begin
+      delete_entity(mfa_config.verify_identity)
+
+      MfaConfig.transaction do 
+        mfa_config.delete
+        resource.assign_attributes(authy_enabled: false, authy_id: nil)
+        resource.save(validate: false)
+      end
+
       forget_device
       set_flash_message(:notice, :disabled)
-    else
-      response = Authy::API.delete_user(:id => authy_id)
-      if response.ok?
-        forget_device
-        set_flash_message(:notice, :disabled)
-      else
-        # If deleting the user from the API fails, set everything back to what
-        # it was before.
-        # I'm not sure this is a good idea, but it was existing behaviour.
-        # Could be changed in a major version bump.
-        resource.assign_attributes(:authy_enabled => true, :authy_id => authy_id)
-        resource.save(:validate => false)
-        set_flash_message(:error, :not_disabled)
-      end
+    rescue StandardError => e
+      logger.error "Disabling MFA failed: #{e}"
+      set_flash_message(:error, :not_disabled)
     end
+
     redirect_to after_authy_disabled_path_for(resource)
   end
 
@@ -113,7 +115,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def POST_verify_authy_installation
-    token_valid = registration_token_valid?(resource.mfa_config)
+    token_valid = registration_token_valid?(resource.mfa_config, params[:token])
 
     resource.authy_enabled = token_valid
 
@@ -169,83 +171,6 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   private
-
-  def registration_token_valid?(mfa_config)
-    totp_registration_valid?(mfa_config) || sms_token_valid?(mfa_config)
-  end
-
-  def totp_registration_valid?(mfa_config)
-    begin
-      status = @verify_client.validate_totp_registration(
-        mfa_config.verify_identity, mfa_config.verify_factor_id, params[:token]
-      )
-    rescue StandardError => e
-      # 60306 means the input token is too long.
-      raise e unless e.message.include?('60306')
-
-      status = 'invalid'
-    end
-    status == 'verified'
-  end
-
-  def sms_token_valid?(mfa_config)
-    begin
-      status = @verify_client.check_sms_verification_code(
-        mfa_config.country_code, mfa_config.cellphone, params[:token]
-      )
-    rescue StandardError => e
-      # 20404 means the resource does not exist. For SMS verification this happens when the wrong
-      # code is entered.
-      #
-      # 60200 means the input token is too long.
-      raise e unless e.message.include?('20404') || e.message.include?('60200')
-
-      status = 'invalid'
-    end
-    status == 'approved'
-  end
-
-  def login_token_valid?(mfa_config)
-    totp_login_valid?(mfa_config) || sms_token_valid?(mfa_config)
-  end
-
-  def totp_login_valid?(mfa_config)
-    begin
-      status = @verify_client.validate_totp_token(
-        mfa_config.verify_identity, mfa_config.verify_factor_id, params[:token]
-      )
-    rescue StandardError => e
-      # 20404 means the resource does not exist. This can happen if an old unverified factor is
-      # cleaned up (i.e. deleted) by Verify. This is okay since the user can still use SMS.
-      #
-      # 60318 means the factor exists but cannot be validated because it wasn't verified during
-      # registration. This is okay since the user can still use SMS.
-      #
-      # 60306 means the input token is too long.
-      raise e unless e.message.include?('60318') || e.message.include?('60306') ||
-                     e.message.include?('20404')
-
-      status = 'invalid'
-    end
-    status == 'approved'
-  end
-
-  def sms_token_valid?(mfa_config)
-    begin
-      status = @verify_client.check_sms_verification_code(
-        mfa_config.country_code, mfa_config.cellphone, params[:token]
-      )
-    rescue StandardError => e
-      # 20404 means the resource does not exist. For SMS verification this happens when the wrong
-      # code is entered.
-      #
-      # 60200 means the input token is too long.
-      raise e unless e.message.include?('20404') || e.message.include?('60200')
-
-      status = 'invalid'
-    end
-    status == 'approved'
-  end
 
   def authenticate_scope!
     send(:"authenticate_#{resource_name}!", :force => true)
@@ -318,5 +243,6 @@ class Devise::DeviseAuthyController < DeviseController
 
   def initialize_twilio_verify_client
     @verify_client = TwilioVerifyClient.new
+    @twilio_validator = TwilioRequestValidator.new(@verify_client)
   end
 end
