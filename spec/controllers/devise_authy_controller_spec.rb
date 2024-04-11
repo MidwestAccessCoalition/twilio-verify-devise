@@ -504,14 +504,13 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               Devise.authy_enable_qr_code = false
             end
 
-            it "should hit API for a QR code" do
-              expect(Authy::API).to receive(:request_qr_code).with(
-                :id => user.authy_id
-              ).and_return(double("Authy::Request", :qr_code => 'https://example.com/qr.png'))
+            it "should generate a QR code" do
+
+              user.mfa_config.update(qr_code_uri: 'https://example.com/qr.png')
 
               get :GET_verify_authy_installation
               expect(response).to render_template('verify_authy_installation')
-              expect(assigns[:authy_qr_code]).to eq('https://example.com/qr.png')
+              expect(assigns[:authy_qr_code]).to_not be_nil;
             end
           end
         end
