@@ -35,7 +35,7 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
         directory "config" do
           directory "locales" do
             file "devise.authy.en.yml" do
-              contains "Two factor authentication was enabled"
+              contains "Multi-factor authentication was enabled"
             end
           end
         end

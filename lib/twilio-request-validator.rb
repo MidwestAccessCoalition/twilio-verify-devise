@@ -4,6 +4,27 @@ class TwilioRequestValidator
     @verify_client = verify_client
   end
 
+  def register_totp(mfa_config)
+    identity = SecureRandom.uuid
+    friendly_name = 'Twilio Verify Devise TOTP'
+
+    new_factor = @verify_client.register_totp_factor(identity, friendly_name)
+
+    mfa_config.update!(
+      verify_identity: new_factor.identity,
+      verify_factor_id: new_factor.sid,
+      qr_code_uri: new_factor.binding['uri']
+    )
+  end
+
+  def delete_entity(identity)
+    @verify_client.delete_entity(identity) unless identity.blank?
+  rescue StandardError => e
+    # 20404 means the resource does not exist. This can happen if an old unverified factor has
+    # already been cleaned up (i.e. deleted) by Verify.
+    raise e unless e.message.include?('20404')
+  end
+
   def registration_token_valid?(mfa_config, token)
     totp_registration_valid?(mfa_config, token) || sms_token_valid?(mfa_config, token)
   end
