@@ -151,20 +151,95 @@ RSpec.describe TwilioInteractor do
     end
   end
 
-  describe '#sms_token_valid?', pending: true do
+  describe '#sms_token_valid?' do
     context 'when check_sms_verification_code returns approved status' do
+      it 'returns true' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:check_sms_verification_code).with(
+            mfa_config.country_code, 
+            mfa_config.cellphone,
+            token
+          ).and_return('approved')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.sms_token_valid?(mfa_config, token)).to eq true
+      end
     end
 
     context 'when check_sms_verification_code returns a non-approved status' do
+      it 'returns false' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:check_sms_verification_code).with(
+            mfa_config.country_code, 
+            mfa_config.cellphone,
+            token
+          ).and_return('not-approved')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.sms_token_valid?(mfa_config, token)).to eq false
+      end
     end
     
     context 'when check_sms_verification_code raises an error' do
+      it 'reraises the error' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:check_sms_verification_code).with(
+            mfa_config.country_code, 
+            mfa_config.cellphone,
+            token
+          ).and_raise('an error!')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect { interactor.sms_token_valid?(mfa_config, token) }.to raise_error(StandardError)
+      end
     end
 
     context 'when check_sms_verification_code raises an error and it has 20404/ resource does not exist' do
+      it 'returns false' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:check_sms_verification_code).with(
+            mfa_config.country_code, 
+            mfa_config.cellphone,
+            token
+          ).and_raise('an error with 20404')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.sms_token_valid?(mfa_config, token)).to eq false
+      end
     end
 
     context 'when check_sms_verification_code raises an error and it has 60200/ token is too long' do
+      it 'returns false' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:check_sms_verification_code).with(
+            mfa_config.country_code, 
+            mfa_config.cellphone,
+            token
+          ).and_raise('an error with 60200')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.sms_token_valid?(mfa_config, token)).to eq false
+      end
     end
   end
 
