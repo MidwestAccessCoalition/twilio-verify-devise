@@ -11,11 +11,6 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           get :GET_verify_authy
           expect(response).to redirect_to(root_path)
         end
-
-        it "should not make a OneTouch request" do
-          expect(Authy::OneTouch).not_to receive(:send_approval_request)
-          get :GET_verify_authy
-        end
       end
 
       describe "#POST_verify_authy" do
@@ -50,11 +45,6 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         it "should redirect to the root_path" do
           get :GET_verify_authy
           expect(response).to redirect_to(root_path)
-        end
-
-        it "should not make a OneTouch request" do
-          expect(Authy::OneTouch).not_to receive(:send_approval_request)
-          get :GET_verify_authy
         end
       end
 
@@ -94,29 +84,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
       it "Should render the second step of authentication" do
         get :GET_verify_authy
         expect(response).to render_template('verify_authy')
-      end
-
-      it "should not make a OneTouch request" do
-        expect(Authy::OneTouch).not_to receive(:send_approval_request)
-        get :GET_verify_authy
-      end
-
-      describe "when OneTouch is enabled" do
-        before(:each) do
-          Devise.authy_enable_onetouch = true
-        end
-
-        after(:each) do
-          Devise.authy_enable_onetouch = false
-        end
-
-        it "should make a OneTouch request and assign the uuid" do
-          expect(Authy::OneTouch).to receive(:send_approval_request)
-                                 .with(id: user.authy_id, message: 'Request to Login')
-                                 .and_return('approval_request' => { 'uuid' => 'uuid' }).once
-          get :GET_verify_authy
-          expect(assigns[:onetouch_uuid]).to eq('uuid')
-        end
+        expect(assigns(:verify_client)).to be_an_instance_of TwilioVerifyClient
       end
     end
 
@@ -154,7 +122,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           it "should redirect to the root_path and set a flash notice" do
             expect(response).to redirect_to(root_path)
-            expect(flash[:notice]).not_to be_nil
+            expect(flash[:notice]).to be_nil # we don't have a default signin message
             expect(flash[:error]).to be nil
           end
 
@@ -428,19 +396,21 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         let(:cellphone) { '3010008090' }
         let(:country_code) { '57' }
 
-        describe "with a successful registration to Authy" do
+        describe "with a successful creation of MfaConfig" do
           before(:each) do
-            expect(Authy::API).to receive(:register_user).with(
-              :email => user.email,
-              :cellphone => cellphone,
-              :country_code => country_code
-            ).and_return(double("Authy::User", :ok? => true, :id => "123"))
-            post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
+            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+              .and_return(
+                double('new_factor',
+                       identity: 'identity',
+                       sid: 'sid',
+                       binding: { 'uri' => 'uri' })
+              )
+            post :POST_enable_authy, params: { cellphone: cellphone, country_code: country_code }
           end
 
           it "save the authy_id to the user" do
             user.reload
-            expect(user.authy_id).to eq("123")
+            expect(user.authy_id).not_to be nil
           end
 
           it "should not enable the user yet" do
@@ -455,14 +425,16 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
         describe "but a user that can't be saved" do
           before(:each) do
+            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+              .and_return(
+                double('new_factor',
+                       identity: 'identity',
+                       sid: 'sid',
+                       binding: { 'uri' => 'uri' })
+              )
             expect(user).to receive(:save).and_return(false)
-            expect(subject).to receive(:current_user).and_return(user)
-            expect(Authy::API).to receive(:register_user).with(
-              :email => user.email,
-              :cellphone => cellphone,
-              :country_code => country_code
-            ).and_return(double("Authy::User", :ok? => true, :id => "123"))
-            post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
+            expect(subject).to receive(:current_user).at_least(:once).and_return(user)
+            post :POST_enable_authy, params: { cellphone: cellphone, country_code: country_code }
           end
 
           it "should set an error flash" do
@@ -474,13 +446,10 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           end
         end
 
-        describe "with an unsuccessful registration to Authy" do
+        describe "with an unsuccessful registration to Twilio Verify" do
           before(:each) do
-            expect(Authy::API).to receive(:register_user).with(
-              :email => user.email,
-              :cellphone => cellphone,
-              :country_code => country_code
-            ).and_return(double("Authy::User", :ok? => false))
+            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+              .and_raise(StandardError)
 
             post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
           end
@@ -492,7 +461,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           end
 
           it "shows an error flash" do
-            expect(flash[:error]).to eq("Something went wrong while enabling two factor authentication")
+            expect(flash[:error]).to eq("Something went wrong while enabling multi-factor authentication")
           end
 
           it "renders enable_authy page again" do
@@ -536,14 +505,13 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               Devise.authy_enable_qr_code = false
             end
 
-            it "should hit API for a QR code" do
-              expect(Authy::API).to receive(:request_qr_code).with(
-                :id => user.authy_id
-              ).and_return(double("Authy::Request", :qr_code => 'https://example.com/qr.png'))
+            it "should generate a QR code" do
+
+              user.mfa_config.update(qr_code_uri: 'https://example.com/qr.png')
 
               get :GET_verify_authy_installation
               expect(response).to render_template('verify_authy_installation')
-              expect(assigns[:authy_qr_code]).to eq('https://example.com/qr.png')
+              expect(assigns[:verify_qr_code]).to_not be_nil
             end
           end
         end
@@ -551,6 +519,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
       describe "POST verify_authy_installation" do
         let(:token) { "000000" }
+        let(:totp_approved_status) { 'verified' }
 
         describe "with a user without an authy id" do
           let(:user) { create(:user) }
@@ -572,11 +541,12 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           describe "successful verification" do
             before(:each) do
-              expect(Authy::API).to receive(:verify).with({
-                :id => user.authy_id,
-                :token => token,
-                :force => true
-              }).and_return(double("Authy::Response", :ok? => true))
+              expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_registration)
+                .with(
+                  user.mfa_config.verify_identity,
+                  user.mfa_config.verify_factor_id,
+                  token
+                ).and_return(totp_approved_status)
               post :POST_verify_authy_installation, :params => { :token => token, :remember_device => '0' }
             end
 
@@ -591,7 +561,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
             it "should set a flash notice and redirect" do
               expect(response).to redirect_to(root_path)
-              expect(flash[:notice]).to eq('Two factor authentication was enabled')
+              expect(flash[:notice]).to eq('Multi-factor authentication was enabled')
             end
 
             it "should not set a remember_device cookie" do
@@ -601,11 +571,12 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           describe "successful verification with remember device" do
             before(:each) do
-              expect(Authy::API).to receive(:verify).with({
-                :id => user.authy_id,
-                :token => token,
-                :force => true
-              }).and_return(double("Authy::Response", :ok? => true))
+              expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_registration)
+                .with(
+                  user.mfa_config.verify_identity,
+                  user.mfa_config.verify_factor_id,
+                  token
+                ).and_return(totp_approved_status)
               post :POST_verify_authy_installation, :params => { :token => token, :remember_device => '1' }
             end
 
@@ -618,7 +589,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
             end
             it "should set a flash notice and redirect" do
               expect(response).to redirect_to(root_path)
-              expect(flash[:notice]).to eq('Two factor authentication was enabled')
+              expect(flash[:notice]).to eq('Multi-factor authentication was enabled')
             end
 
             it "should set a signed remember_device cookie" do
@@ -631,12 +602,22 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           end
 
           describe "unsuccessful verification" do
+            let(:totp_invalid_status) { 'invalid' }
             before(:each) do
-              expect(Authy::API).to receive(:verify).with({
-                :id => user.authy_id,
-                :token => token,
-                :force => true
-              }).and_return(double("Authy::Response", :ok? => false))
+              expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_registration)
+                .with(
+                  user.mfa_config.verify_identity,
+                  user.mfa_config.verify_factor_id,
+                  token
+                ).and_return(totp_invalid_status)
+
+              expect_any_instance_of(TwilioVerifyClient).to receive(:check_sms_verification_code)
+                .with(
+                  user.mfa_config.country_code,
+                  user.mfa_config.cellphone,
+                  token
+                ).and_raise(StandardError, '20404')
+
               post :POST_verify_authy_installation, :params => { :token => token }
             end
 
@@ -647,125 +628,106 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
             it "should set an error flash and render verify_authy_installation" do
               expect(response).to render_template('verify_authy_installation')
-              expect(flash[:error]).to eq('Something went wrong while enabling two factor authentication')
-            end
-          end
-
-          describe "unsuccessful verification with qr codes turned on" do
-            before(:each) do
-              Devise.authy_enable_qr_code = true
-            end
-
-            after(:each) do
-              Devise.authy_enable_qr_code = false
-            end
-
-            it "should hit API for a QR code" do
-              expect(Authy::API).to receive(:verify).with({
-                :id => user.authy_id,
-                :token => token,
-                :force => true
-              }).and_return(double("Authy::Response", :ok? => false))
-              expect(Authy::API).to receive(:request_qr_code).with(
-                :id => user.authy_id
-              ).and_return(double("Authy::Request", :qr_code => 'https://example.com/qr.png'))
-
-              post :POST_verify_authy_installation, :params => { :token => token }
-              expect(response).to render_template('verify_authy_installation')
-              expect(assigns[:authy_qr_code]).to eq('https://example.com/qr.png')
+              expect(flash[:error]).to eq('The entered token is invalid')
             end
           end
         end
       end
 
       describe "POST disable_authy" do
-        describe "successfully" do
+        describe 'successfully' do
           before(:each) do
             cookies.signed[:remember_device] = {
-              :value => {expires: Time.now.to_i, id: user.id}.to_json,
-              :secure => false,
-              :expires => User.authy_remember_device.from_now
+              value: { expires: Time.now.to_i, id: user.id }.to_json,
+              secure: false,
+              expires: User.authy_remember_device.from_now
             }
-            expect(Authy::API).to receive(:delete_user)
-              .with(:id => user.authy_id)
-              .and_return(double("Authy::Response", :ok? => true))
+            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+              .with(user.mfa_config.verify_identity)
+              .and_return(true)
 
             post :POST_disable_authy
           end
 
-          it "should disable 2FA" do
+          it 'should disable 2FA' do
             user.reload
             expect(user.authy_id).to be nil
             expect(user.authy_enabled).to be false
           end
 
-          it "should forget the device cookie" do
+          it 'should forget the device cookie' do
             expect(response.cookies[:remember_device]).to be nil
           end
 
-          it "should set a flash notice and redirect" do
-            expect(flash.now[:notice]).to eq("Two factor authentication was disabled")
+          it 'should set a flash notice and redirect' do
+            expect(flash.now[:notice]).to eq('Multi-factor authentication was disabled')
             expect(response).to redirect_to(root_path)
           end
         end
 
-        describe "with more than one user using the same authy_id" do
-          # It is valid for more than one user to share an authy_id
-          # https://github.com/twilio/authy-devise/issues/143
+        describe 'unsuccessfully' do
           before(:each) do
-            @other_user = create(:authy_user, :authy_id => user.authy_id)
             cookies.signed[:remember_device] = {
-              :value => {expires: Time.now.to_i, id: user.id}.to_json,
-              :secure => false,
-              :expires => User.authy_remember_device.from_now
+              value: { expires: Time.now.to_i, id: user.id }.to_json,
+              secure: false,
+              expires: User.authy_remember_device.from_now
             }
-            expect(Authy::API).not_to receive(:delete_user)
+            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+              .with(user.mfa_config.verify_identity)
+              .and_raise(StandardError)
 
             post :POST_disable_authy
           end
 
-          it "should disable 2FA" do
-            user.reload
-            expect(user.authy_id).to be nil
-            expect(user.authy_enabled).to be false
-          end
-
-          it "should forget the device cookie" do
-            expect(response.cookies[:remember_device]).to be nil
-          end
-
-          it "should set a flash notice and redirect" do
-            expect(flash.now[:notice]).to eq("Two factor authentication was disabled")
-            expect(response).to redirect_to(root_path)
-          end
-        end
-
-        describe "unsuccessfully" do
-          before(:each) do
-            cookies.signed[:remember_device] = {
-              :value => {expires: Time.now.to_i, id: user.id}.to_json,
-              :secure => false,
-              :expires => User.authy_remember_device.from_now
-            }
-            expect(Authy::API).to receive(:delete_user)
-              .with(:id => user.authy_id)
-              .and_return(double("Authy::Response", :ok? => false))
-
-            post :POST_disable_authy
-          end
-
-          it "should not disable 2FA" do
+          it 'should not disable 2FA' do
             user.reload
             expect(user.authy_id).not_to be nil
             expect(user.authy_enabled).to be true
           end
 
-          it "should not forget the device cookie" do
+          it 'should not forget the device cookie' do
             expect(cookies[:remember_device]).not_to be_nil
           end
 
-          it "should set a flash error and redirect" do
-            expect(flash[:error]).to eq("Something went wrong while disabling two factor authentication")
+          it 'should set a flash error and redirect' do
+            expect(flash[:error]).to eq('Something went wrong while disabling Multi-factor authentication')
+            expect(response).to redirect_to(root_path)
+          end
+        end
+
+        describe 'unsuccessfully but is inside transaction' do
+          before(:each) do
+            cookies.signed[:remember_device] = {
+              value: { expires: Time.now.to_i, id: user.id }.to_json,
+              secure: false,
+              expires: User.authy_remember_device.from_now
+            }
+            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+              .with(user.mfa_config.verify_identity)
+              .and_return(true)
+
+            expect_any_instance_of(User).to receive(:save)
+              .and_raise(StandardError)
+
+            post :POST_disable_authy
+          end
+
+          it 'should not disable 2FA' do
+            user.reload
+            expect(user.authy_id).not_to be nil
+            expect(user.authy_enabled).to be true
+          end
+
+          it 'should not delete the mfa config' do
+            expect(user.mfa_config).to_not be nil
+          end
+
+          it 'should not forget the device cookie' do
+            expect(cookies[:remember_device]).not_to be_nil
+          end
+
+          it 'should set a flash error and redirect' do
+            expect(flash[:error]).to eq('Something went wrong while disabling Multi-factor authentication')
             expect(response).to redirect_to(root_path)
           end
         end
@@ -777,6 +739,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     describe "without a user" do
       it "Should not request sms if user couldn't be found" do
         expect(Authy::API).not_to receive(:request_sms)
+        expect_any_instance_of(TwilioVerifyClient).not_to receive(:send_sms_verification_code)
 
         post :request_sms
 
@@ -799,36 +762,71 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     end
 
     describe "#request_sms" do
-      before(:each) do
-        expect(Authy::API).to receive(:request_sms)
-          .with(:id => user.authy_id, :force => true)
-          .and_return(
-            double("Authy::Response", :ok? => true, :message => "Token was sent.")
-          )
-      end
-      describe "with a logged in user" do
-        before(:each) { sign_in user }
+      context 'successfully' do 
+        before(:each) do
+          expect_any_instance_of(TwilioVerifyClient).to receive(:send_sms_verification_code)
+            .with(user.mfa_config.country_code, user.mfa_config.cellphone)
+            .and_return('pending')
+        end
+    
+        describe "with a logged in user" do
+          before(:each) { sign_in user }
 
-        it "should send an SMS and respond with JSON" do
-          post :request_sms
-          expect(response.media_type).to eq('application/json')
-          body = JSON.parse(response.body)
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
 
-          expect(body['sent']).to be_truthy
-          expect(body['message']).to eq("Token was sent.")
+            expect(body['sent']).to be_truthy
+            expect(body['message']).to eq("Token was sent.")
+          end
+        end
+
+        describe "with a user_id in the session" do
+          before(:each) { session["user_id"] = user.id }
+
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
+
+            expect(body['sent']).to be_truthy
+            expect(body['message']).to eq("Token was sent.")
+          end
         end
       end
 
-      describe "with a user_id in the session" do
-        before(:each) { session["user_id"] = user.id }
+      context 'unsuccessfully' do 
+        before(:each) do
+          expect_any_instance_of(TwilioVerifyClient).to receive(:send_sms_verification_code)
+            .with(user.mfa_config.country_code, user.mfa_config.cellphone)
+            .and_return('not pending')
+        end
+    
+        describe "with a logged in user" do
+          before(:each) { sign_in user }
 
-        it "should send an SMS and respond with JSON" do
-          post :request_sms
-          expect(response.media_type).to eq('application/json')
-          body = JSON.parse(response.body)
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
 
-          expect(body['sent']).to be_truthy
-          expect(body['message']).to eq("Token was sent.")
+            expect(body['sent']).to be_falsey
+            expect(body['message']).to eq("Token failed to send.")
+          end
+        end
+
+        describe "with a user_id in the session" do
+          before(:each) { session["user_id"] = user.id }
+
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
+
+            expect(body['sent']).to be_falsey
+            expect(body['message']).to eq("Token failed to send.")
+          end
         end
       end
     end

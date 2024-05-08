@@ -30,6 +30,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "devise", ">= 4.0.0"
   spec.add_dependency "authy", "~> 3.0"
+  spec.add_dependency "twilio-ruby", "~> 6.9"
+  spec.add_dependency "rqrcode", "~> 2.0"
 
   spec.add_development_dependency "appraisal", "~> 2.2"
   spec.add_development_dependency "bundler", ">= 1.16"
@@ -45,6 +47,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rails", ">= 5"
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "generator_spec"
-  spec.add_development_dependency "database_cleaner", "~> 1.7"
+  spec.add_development_dependency "database_cleaner", "~> 2.0"
   spec.add_development_dependency "factory_bot_rails", "~> 5.1.1"
+  spec.add_development_dependency "pry"
+  spec.add_development_dependency "faker", "~> 3.2"
+  spec.add_development_dependency "shoulda-matchers"
 end

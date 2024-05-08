@@ -80,7 +80,7 @@ module DeviseAuthy
         Authy::OneTouch.send_approval_request(id: authy_id, message: I18n.t('request_to_login', scope: 'devise'))
       end
 
-      def record_authy_authentication
+      def record_twilio_authentication
         @resource.update_attribute(:last_sign_in_with_authy, DateTime.now)
         session["#{resource_name}_authy_token_checked"] = true
         sign_in(resource_name, @resource)
