@@ -125,12 +125,21 @@ RSpec.describe TwilioInteractor do
 
   describe '#registration_token_valid?', pending: true do
     context 'when totp_registration_valid? is true' do
+      it 'returns true' do
+        fail
+      end
     end
     
     context 'when sms_token_valid? is true' do
+      it 'returns true' do
+        fail
+      end
     end
 
     context 'when neither are true' do
+      it 'returns false' do
+        fail
+      end
     end
   end
 
@@ -303,12 +312,21 @@ RSpec.describe TwilioInteractor do
 
   describe '#login_token_valid?', pending: true do
     context 'when totp_login_valid? is true' do
+      it 'returns true' do
+        fail
+      end
     end
     
     context 'when sms_token_valid? is true' do
+      it 'returns true' do
+        fail
+      end
     end
 
     context 'when neither are true' do
+      it 'returns false' do
+        fail
+      end
     end
   end
 
