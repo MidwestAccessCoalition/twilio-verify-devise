@@ -23,9 +23,8 @@ class Devise::DeviseAuthyController < DeviseController
 
   before_action :initialize_twilio_verify_client
 
-  attr_reader :twilio_validator
-  delegate :registration_token_valid?, :register_totp, :delete_entity, :login_token_valid?,
-        to: :twilio_validator, private: true
+  attr_reader :twilio_interactor
+  delegate :registration_token_valid?, :register_totp, :delete_entity, to: :twilio_interactor, private: true
 
   include Devise::Controllers::Helpers
 
@@ -244,6 +243,6 @@ class Devise::DeviseAuthyController < DeviseController
 
   def initialize_twilio_verify_client
     @verify_client = TwilioVerifyClient.new
-    @twilio_validator = TwilioRequestValidator.new(@verify_client)
+    @twilio_interactor = TwilioInteractor.new(@verify_client)
   end
 end
