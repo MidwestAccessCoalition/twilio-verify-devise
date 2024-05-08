@@ -1,14 +1,72 @@
 # frozen_string_literal: true
 
 RSpec.describe TwilioInteractor do
-  describe '#register_totp', pending: true do
+  describe '#register_totp' do
     context 'when register_totp_factor returns a valid factor' do
+      it 'updates the mfa_config' do
+        verify_client = double('verify_client')
+
+        mfa_config = create(:mfa_config)
+        factor = double('factor', identity: 'an identity', sid: 'a sid', binding: {'uri' => 'https://qrcode_uri'})
+
+        expect(verify_client).to receive(:register_totp_factor).with(
+            an_instance_of(String), 
+            'Twilio Verify Devise TOTP'
+          ).and_return(factor)
+        
+        interactor = TwilioInteractor.new(verify_client)
+        
+        expect(interactor.register_totp(mfa_config)).to eq true
+
+        mfa_config.reload
+
+        expect(mfa_config.verify_identity).to eq 'an identity'
+        expect(mfa_config.verify_factor_id).to eq 'a sid'
+        expect(mfa_config.qr_code_uri).to eq 'https://qrcode_uri'
+      end
     end
 
     context 'when register_totp_factor raises' do
+      it 'raises' do
+        verify_client = double('verify_client')
+
+        mfa_config = create(:mfa_config)
+
+        expect(verify_client).to receive(:register_totp_factor).with(
+            an_instance_of(String), 
+            'Twilio Verify Devise TOTP'
+          ).and_raise('an scary error')
+        
+        interactor = TwilioInteractor.new(verify_client)
+        
+        expect { interactor.register_totp(mfa_config) }.to raise_error(StandardError)
+
+        mfa_config.reload
+
+        expect(mfa_config.verify_identity).to_not eq 'an identity'
+        expect(mfa_config.verify_factor_id).to_not eq 'a sid'
+        expect(mfa_config.qr_code_uri).to_not eq 'https://qrcode_uri'
+      end
     end
 
     context 'when update! raises' do
+      it 'raises error' do
+        verify_client = double('verify_client')
+
+        mfa_config = create(:mfa_config)
+        factor = double('factor', identity: 'an identity', sid: 'a sid', binding: {'uri' => 'https://qrcode_uri'})
+
+        expect(verify_client).to receive(:register_totp_factor).with(
+            an_instance_of(String), 
+            'Twilio Verify Devise TOTP'
+          ).and_return(factor)
+
+       expect(mfa_config).to receive(:update!).and_raise('an error')
+        
+        interactor = TwilioInteractor.new(verify_client)
+        
+        expect { interactor.register_totp(mfa_config) }.to raise_error('an error')
+      end
     end
   end
 
