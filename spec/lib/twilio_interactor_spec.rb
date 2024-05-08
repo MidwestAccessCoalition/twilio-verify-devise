@@ -254,23 +254,114 @@ RSpec.describe TwilioInteractor do
     end
   end
 
-  describe '#totp_login_valid?', pending: true do
+  describe '#totp_login_valid?' do
     context 'when validate_totp_token returns approved status' do
+      it 'returns true' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_token).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_return('approved')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.totp_login_valid?(mfa_config, token)).to eq true
+      end
     end
 
     context 'when validate_totp_token returns a non-approved status' do
+      it 'returns false' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_token).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_return('not-approved')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.totp_login_valid?(mfa_config, token)).to eq false
+      end
     end
     
     context 'when validate_totp_token raises an error' do
+      it 'reraises the error' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_token).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_raise("a wild error appears!")
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect { interactor.totp_login_valid?(mfa_config, token) }.to raise_error(StandardError)
+      end
     end
 
     context 'when validate_totp_token raises an error and it has 60318/ resource does not exist' do
+      it 'returns false' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_token).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_return('it has  60318 in its error')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.totp_login_valid?(mfa_config, token)).to eq false
+      end
     end
 
     context 'when validate_totp_token raises an error and it has 20404/ factor exists but wasnt validated during registration' do
+
+      it 'returns false' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_token).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_return('it has  20404 in its error')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.totp_login_valid?(mfa_config, token)).to eq false
+      end
     end
 
     context 'when validate_totp_token raises an error and it has 60200/ token is too long' do
+      it 'returns false' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_token).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_return('it has  60200 in its error')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.totp_login_valid?(mfa_config, token)).to eq false
+      end
     end
   end
 end
