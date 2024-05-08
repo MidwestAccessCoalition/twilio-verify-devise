@@ -24,7 +24,7 @@ class Devise::DeviseAuthyController < DeviseController
   before_action :initialize_twilio_verify_client
 
   attr_reader :twilio_interactor
-  delegate :registration_token_valid?, :register_totp, :delete_entity, to: :twilio_interactor, private: true
+  delegate :delete_entity, :registration_token_valid?, :register_totp, to: :twilio_interactor, private: true
 
   include Devise::Controllers::Helpers
 
