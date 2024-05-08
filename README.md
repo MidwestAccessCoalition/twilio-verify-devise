@@ -32,7 +32,6 @@ This is a [Devise](https://github.com/plataformatec/devise) extension to add [Tw
 * [Custom Redirect Paths (eg. using modules)](#custom-redirect-paths-eg-using-modules)
 * [I18n](#i18n)
 * [Session variables](#session-variables)
-* [OneTouch support](#onetouch-support)
 * [Generic authenticator token support](#generic-authenticator-token-support)
 * [Rails 5 CSRF protection](#rails-5-csrf-protection)
 * [Running Tests](#running-tests)
@@ -207,14 +206,6 @@ session["#{resource_name}_authy_token_checked"]
 
 # Eg.
 session["user_authy_token_checked"]
-```
-
-## OneTouch support
-
-To enable [Authy push authentication](https://www.twilio.com/authy/features/push), you need to modify the Devise config file `config/initializers/devise.rb` and add configuration:
-
-```
-config.authy_enable_onetouch = true
 ```
 
 ## Generic authenticator token support
