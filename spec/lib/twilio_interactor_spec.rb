@@ -2,6 +2,14 @@
 
 RSpec.describe TwilioInteractor do
   describe '#register_totp', pending: true do
+    context 'when register_totp_factor returns a valid factor' do
+    end
+
+    context 'when register_totp_factor raises' do
+    end
+
+    context 'when update! raises' do
+    end
   end
 
   describe '#delete_entity', pending: true do
@@ -11,7 +19,7 @@ RSpec.describe TwilioInteractor do
     context 'when an error is raised' do
     end
 
-    context 'when an error is raised with a message that includes 20404/already deleted'
+    context 'when an error is raised with a message that includes 20404/already deleted' do
     end
 
   end
