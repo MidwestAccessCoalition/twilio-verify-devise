@@ -3,6 +3,7 @@ require 'active_support/concern'
 require 'active_support/core_ext/integer/time'
 require 'devise'
 require 'authy'
+require 'rqrcode'
 require_relative './twilio-verify-client'
 require_relative './twilio-request-validator'
 
