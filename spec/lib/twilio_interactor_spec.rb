@@ -12,14 +12,55 @@ RSpec.describe TwilioInteractor do
     end
   end
 
-  describe '#delete_entity', pending: true do
+  describe '#delete_entity' do
     context 'when identity is blank' do
+      it 'does not call verify_client.delete_entity' do
+        verify_client = double('verify_client')
+
+        expect(verify_client).to_not receive(:delete_entity)
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.delete_entity(nil)).to be_falsey
+      end
     end
 
     context 'when an error is raised' do
+      it 'reraises the error from verify_client.delete_entity' do
+        verify_client = double('verify_client')
+
+        expect(verify_client).to receive(:delete_entity).with('an id').and_raise('this is an error')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect { interactor.delete_entity('an id') }.to raise_error(StandardError)
+      end
     end
 
     context 'when an error is raised with a message that includes 20404/already deleted' do
+      it "is falsey" do
+        verify_client = double('verify_client')
+
+        expect(verify_client).to receive(:delete_entity).with('an id').and_raise("this includes 20404")
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.delete_entity('an id')).to be_falsey
+      end
+    end
+
+    context 'when successful' do
+      # from docs, it's not clear what is actually returned by deleteentity
+      # https://www.twilio.com/docs/verify/api/entity#delete-an-entity-resource
+      it 'it is truthy' do 
+        verify_client = double('verify_client')
+
+        expect(verify_client).to receive(:delete_entity).with('an id').and_return(true)
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.delete_entity('an id')).to be_truthy
+      end
     end
 
   end
