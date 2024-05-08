@@ -76,17 +76,78 @@ RSpec.describe TwilioInteractor do
     end
   end
 
-  describe '#totp_registration_valid?', pending: true do
+  describe '#totp_registration_valid?' do
     context 'when validate_totp_registration returns verified status' do
+      it 'returns true' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_registration).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_return('verified')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.totp_registration_valid?(mfa_config, token)).to eq true
+      end
+      
     end
 
     context 'when validate_totp_registration returns a non-verified status' do
+      it 'returns false' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_registration).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_return('not-verified')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.totp_registration_valid?(mfa_config, token)).to eq false
+      end
     end
     
     context 'when validate_totp_registration raises an error' do
+      it 'reraises an error' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_registration).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_raise('an error!')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect { interactor.totp_registration_valid?(mfa_config, token) }.to raise_error(StandardError)
+      end
     end
 
     context 'when validate_totp_registration raises an error and it has 60306/ input token is too long' do
+      it 'returns false' do
+        verify_client = double('verify_client')
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_registration).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_raise('an error with 60306')
+
+        interactor = TwilioInteractor.new(verify_client)
+
+        expect(interactor.totp_registration_valid?(mfa_config, token)).to eq false
+      end
     end
   end
 
