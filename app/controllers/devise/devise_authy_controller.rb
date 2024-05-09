@@ -23,6 +23,9 @@ class Devise::DeviseAuthyController < DeviseController
 
   before_action :initialize_twilio_verify_client
 
+  attr_reader :twilio_interactor
+  delegate :delete_entity, :registration_token_valid?, :register_totp, to: :twilio_interactor, private: true
+
   include Devise::Controllers::Helpers
 
   # The verify_authy endpoints are for verification on login. Verification after registration
@@ -118,7 +121,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def POST_verify_authy_installation
-    token_valid = registration_token_valid?(resource.mfa_config)
+    token_valid = registration_token_valid?(resource.mfa_config, params[:token])
 
     resource.authy_enabled = token_valid
 
@@ -174,62 +177,6 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   private
-
-  def register_totp(mfa_config)
-    identity = SecureRandom.uuid
-    friendly_name = 'Twilio Verify Devise TOTP'
-
-    new_factor = @verify_client.register_totp_factor(identity, friendly_name)
-
-    mfa_config.update!(
-      verify_identity: new_factor.identity,
-      verify_factor_id: new_factor.sid,
-      qr_code_uri: new_factor.binding['uri']
-    )
-  end
-
-  def delete_entity(identity)
-    @verify_client.delete_entity(identity) unless identity.blank?
-  rescue StandardError => e
-    # 20404 means the resource does not exist. This can happen if an old unverified factor has
-    # already been cleaned up (i.e. deleted) by Verify.
-    raise e unless e.message.include?('20404')
-  end
-
-  def registration_token_valid?(mfa_config)
-    totp_registration_valid?(mfa_config) || sms_token_valid?(mfa_config)
-  end
-
-  def totp_registration_valid?(mfa_config)
-    begin
-      status = @verify_client.validate_totp_registration(
-        mfa_config.verify_identity, mfa_config.verify_factor_id, params[:token]
-      )
-    rescue StandardError => e
-      # 60306 means the input token is too long.
-      raise e unless e.message.include?('60306')
-
-      status = 'invalid'
-    end
-    status == 'verified'
-  end
-
-  def sms_token_valid?(mfa_config)
-    begin
-      status = @verify_client.check_sms_verification_code(
-        mfa_config.country_code, mfa_config.cellphone, params[:token]
-      )
-    rescue StandardError => e
-      # 20404 means the resource does not exist. For SMS verification this happens when the wrong
-      # code is entered.
-      #
-      # 60200 means the input token is too long.
-      raise e unless e.message.include?('20404') || e.message.include?('60200')
-
-      status = 'invalid'
-    end
-    status == 'approved'
-  end
 
   def authenticate_scope!
     send(:"authenticate_#{resource_name}!", :force => true)
@@ -302,5 +249,6 @@ class Devise::DeviseAuthyController < DeviseController
 
   def initialize_twilio_verify_client
     @verify_client = TwilioVerifyClient.new
+    @twilio_interactor = TwilioInteractor.new(@verify_client)
   end
 end
