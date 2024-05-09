@@ -84,21 +84,4 @@ class TwilioInteractor
     end
     status == 'approved'
   end
-
-  def sms_token_valid?(mfa_config, token)
-    begin
-      status = @verify_client.check_sms_verification_code(
-        mfa_config.country_code, mfa_config.cellphone, token
-      )
-    rescue StandardError => e
-      # 20404 means the resource does not exist. For SMS verification this happens when the wrong
-      # code is entered.
-      #
-      # 60200 means the input token is too long.
-      raise e unless e.message.include?('20404') || e.message.include?('60200')
-
-      status = 'invalid'
-    end
-    status == 'approved'
-  end
 end
