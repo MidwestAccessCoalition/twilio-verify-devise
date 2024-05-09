@@ -2,6 +2,7 @@
 
 RSpec.describe TwilioInteractor do
   let(:verify_client) { double('verify_client') }
+  let(:interactor) { TwilioInteractor.new(verify_client) }
 
   describe '#register_totp' do
     context 'when register_totp_factor returns a valid factor' do
@@ -13,8 +14,6 @@ RSpec.describe TwilioInteractor do
             an_instance_of(String), 
             'Twilio Verify Devise TOTP'
           ).and_return(factor)
-        
-        interactor = TwilioInteractor.new(verify_client)
         
         expect(interactor.register_totp(mfa_config)).to eq true
 
@@ -34,9 +33,7 @@ RSpec.describe TwilioInteractor do
             an_instance_of(String), 
             'Twilio Verify Devise TOTP'
           ).and_raise('an scary error')
-        
-        interactor = TwilioInteractor.new(verify_client)
-        
+
         expect { interactor.register_totp(mfa_config) }.to raise_error(StandardError)
 
         mfa_config.reload
@@ -57,10 +54,8 @@ RSpec.describe TwilioInteractor do
             'Twilio Verify Devise TOTP'
           ).and_return(factor)
 
-       expect(mfa_config).to receive(:update!).and_raise('an error')
-        
-        interactor = TwilioInteractor.new(verify_client)
-        
+        expect(mfa_config).to receive(:update!).and_raise('an error')
+
         expect { interactor.register_totp(mfa_config) }.to raise_error('an error')
       end
     end
@@ -71,8 +66,6 @@ RSpec.describe TwilioInteractor do
       it 'does not call verify_client.delete_entity' do
         expect(verify_client).to_not receive(:delete_entity)
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect(interactor.delete_entity(nil)).to be_falsey
       end
     end
@@ -81,8 +74,6 @@ RSpec.describe TwilioInteractor do
       it 'reraises the error from verify_client.delete_entity' do
         expect(verify_client).to receive(:delete_entity).with('an id').and_raise('this is an error')
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect { interactor.delete_entity('an id') }.to raise_error(StandardError)
       end
     end
@@ -90,8 +81,6 @@ RSpec.describe TwilioInteractor do
     context 'when an error is raised with a message that includes 20404/already deleted' do
       it "is falsey" do
         expect(verify_client).to receive(:delete_entity).with('an id').and_raise("this includes 20404")
-
-        interactor = TwilioInteractor.new(verify_client)
 
         expect(interactor.delete_entity('an id')).to be_falsey
       end
@@ -102,8 +91,6 @@ RSpec.describe TwilioInteractor do
       # https://www.twilio.com/docs/verify/api/entity#delete-an-entity-resource
       it 'it is truthy' do
         expect(verify_client).to receive(:delete_entity).with('an id').and_return(true)
-
-        interactor = TwilioInteractor.new(verify_client)
 
         expect(interactor.delete_entity('an id')).to be_truthy
       end
@@ -143,8 +130,6 @@ RSpec.describe TwilioInteractor do
             token
           ).and_return('verified')
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect(interactor.totp_registration_valid?(mfa_config, token)).to eq true
       end
       
@@ -161,8 +146,6 @@ RSpec.describe TwilioInteractor do
             token
           ).and_return('not-verified')
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect(interactor.totp_registration_valid?(mfa_config, token)).to eq false
       end
     end
@@ -178,8 +161,6 @@ RSpec.describe TwilioInteractor do
             token
           ).and_raise('an error!')
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect { interactor.totp_registration_valid?(mfa_config, token) }.to raise_error(StandardError)
       end
     end
@@ -194,8 +175,6 @@ RSpec.describe TwilioInteractor do
             mfa_config.verify_factor_id,
             token
           ).and_raise('an error with 60306')
-
-        interactor = TwilioInteractor.new(verify_client)
 
         expect(interactor.totp_registration_valid?(mfa_config, token)).to eq false
       end
@@ -214,8 +193,6 @@ RSpec.describe TwilioInteractor do
             token
           ).and_return('approved')
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect(interactor.sms_token_valid?(mfa_config, token)).to eq true
       end
     end
@@ -230,8 +207,6 @@ RSpec.describe TwilioInteractor do
             mfa_config.cellphone,
             token
           ).and_return('not-approved')
-
-        interactor = TwilioInteractor.new(verify_client)
 
         expect(interactor.sms_token_valid?(mfa_config, token)).to eq false
       end
@@ -248,8 +223,6 @@ RSpec.describe TwilioInteractor do
             token
           ).and_raise('an error!')
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect { interactor.sms_token_valid?(mfa_config, token) }.to raise_error(StandardError)
       end
     end
@@ -265,8 +238,6 @@ RSpec.describe TwilioInteractor do
             token
           ).and_raise('an error with 20404')
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect(interactor.sms_token_valid?(mfa_config, token)).to eq false
       end
     end
@@ -281,8 +252,6 @@ RSpec.describe TwilioInteractor do
             mfa_config.cellphone,
             token
           ).and_raise('an error with 60200')
-
-        interactor = TwilioInteractor.new(verify_client)
 
         expect(interactor.sms_token_valid?(mfa_config, token)).to eq false
       end
@@ -321,8 +290,6 @@ RSpec.describe TwilioInteractor do
             token
           ).and_return('approved')
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect(interactor.totp_login_valid?(mfa_config, token)).to eq true
       end
     end
@@ -337,8 +304,6 @@ RSpec.describe TwilioInteractor do
             mfa_config.verify_factor_id,
             token
           ).and_return('not-approved')
-
-        interactor = TwilioInteractor.new(verify_client)
 
         expect(interactor.totp_login_valid?(mfa_config, token)).to eq false
       end
@@ -355,8 +320,6 @@ RSpec.describe TwilioInteractor do
             token
           ).and_raise("a wild error appears!")
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect { interactor.totp_login_valid?(mfa_config, token) }.to raise_error(StandardError)
       end
     end
@@ -371,8 +334,6 @@ RSpec.describe TwilioInteractor do
             mfa_config.verify_factor_id,
             token
           ).and_return('it has  60318 in its error')
-
-        interactor = TwilioInteractor.new(verify_client)
 
         expect(interactor.totp_login_valid?(mfa_config, token)).to eq false
       end
@@ -390,8 +351,6 @@ RSpec.describe TwilioInteractor do
             token
           ).and_return('it has  20404 in its error')
 
-        interactor = TwilioInteractor.new(verify_client)
-
         expect(interactor.totp_login_valid?(mfa_config, token)).to eq false
       end
     end
@@ -406,8 +365,6 @@ RSpec.describe TwilioInteractor do
             mfa_config.verify_factor_id,
             token
           ).and_return('it has  60200 in its error')
-
-        interactor = TwilioInteractor.new(verify_client)
 
         expect(interactor.totp_login_valid?(mfa_config, token)).to eq false
       end
