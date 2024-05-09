@@ -98,22 +98,63 @@ RSpec.describe TwilioInteractor do
 
   end
 
-  describe '#registration_token_valid?', pending: true do
+  describe '#registration_token_valid?' do
     context 'when totp_registration_valid? is true' do
       it 'returns true' do
-        fail
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_registration).with(
+            mfa_config.verify_identity, 
+            mfa_config.verify_factor_id,
+            token
+          ).and_return('verified')
+
+        expect(verify_client).to_not receive(:check_sms_verification_code)
+
+        expect(interactor.registration_token_valid?(mfa_config, token)).to eq true
       end
     end
     
     context 'when sms_token_valid? is true' do
       it 'returns true' do
-        fail
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_registration).with(
+          mfa_config.verify_identity, 
+          mfa_config.verify_factor_id,
+          token
+        ).and_return('not-verified')
+      
+        expect(verify_client).to receive(:check_sms_verification_code).with(
+            mfa_config.country_code, 
+            mfa_config.cellphone,
+            token
+          ).and_return('approved')
+
+        expect(interactor.registration_token_valid?(mfa_config, token)).to eq true
       end
     end
 
     context 'when neither are true' do
       it 'returns false' do
-        fail
+        mfa_config = build(:mfa_config)
+        token = "token"
+
+        expect(verify_client).to receive(:validate_totp_registration).with(
+          mfa_config.verify_identity, 
+          mfa_config.verify_factor_id,
+          token
+        ).and_return('not-verified')
+      
+        expect(verify_client).to receive(:check_sms_verification_code).with(
+            mfa_config.country_code, 
+            mfa_config.cellphone,
+            token
+          ).and_return('not-approved')
+
+        expect(interactor.registration_token_valid?(mfa_config, token)).to eq false
       end
     end
   end
