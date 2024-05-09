@@ -749,7 +749,6 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
   describe "requesting authentication tokens" do
     describe "without a user" do
       it "Should not request sms if user couldn't be found" do
-        expect(Authy::API).not_to receive(:request_sms)
         expect_any_instance_of(TwilioVerifyClient).not_to receive(:send_sms_verification_code)
 
         post :request_sms
