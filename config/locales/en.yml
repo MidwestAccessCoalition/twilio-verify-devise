@@ -2,8 +2,8 @@ en:
   devise:
     submit_token: 'Check Token'
     submit_token_title: 'Please enter your Authy token:'
-    authy_register_title: 'Enable Two factor authentication'
-    enable_authy: 'Enable'
+    twilio_verify_register_title: 'Enable Two factor authentication'
+    enable__twilio_verify: 'Enable'
     cellphone: 'Enter your cellphone'
     country: 'Enter your country'
     request_sms: 'Request SMS'
@@ -11,13 +11,13 @@ en:
     remember_device: 'Remember Device'
     request_to_login: 'Request to Login'
 
-    authy_verify_installation_title: 'Verify your account'
+    twilio_verify_installation_title: 'Verify your account'
     enable_my_account: 'Enable my account'
 
-    authy_qr_code_alt: 'QR code for scanning with your authenticator app.'
-    authy_qr_code_instructions: 'Scan this QR code with your authenticator application and enter the code below.'
+    twilio_verify_qr_code_alt: 'QR code for scanning with your authenticator app.'
+    twilio_verify_qr_code_instructions: 'Scan this QR code with your authenticator application and enter the code below.'
 
-    devise_authy:
+    devise-twilio-verify:
       user:
         enabled: 'Multi-factor authentication was enabled'
         not_enabled: 'Something went wrong while enabling multi-factor authentication'
