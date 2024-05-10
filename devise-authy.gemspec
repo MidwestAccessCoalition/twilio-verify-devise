@@ -10,10 +10,6 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Authy Inc."]
   spec.email         = ["support@authy.com"]
 
-  spec.summary       = %q{Deprecated: please see README for details}
-  spec.description   = %q{Authy plugin to add two factor authentication to Devise. This gem is deprecated, please see the README for details.}
-  spec.homepage      = "https://github.com/twilio/authy-devise"
-  spec.license       = "MIT"
 
   spec.metadata      = {
     "bug_tracker_uri"   => "https://github.com/twilio/authy-devise/issues",
@@ -29,7 +25,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "devise", ">= 4.0.0"
-  spec.add_dependency "authy", "~> 3.0"
   spec.add_dependency "twilio-ruby", "~> 6.9"
   spec.add_dependency "rqrcode", "~> 2.0"
 
