@@ -749,7 +749,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
       end
 
       it "Should not request a phone call if user couldn't be found" do
-        expect(Authy::API).not_to receive(:request_phone_call)
+        expect_any_instance_of(TwilioVerifyClient).not_to receive(:request_phone_call)
 
         post :request_phone_call
 
@@ -761,6 +761,76 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     end
 
     describe "#request_sms" do
+      context 'successfully' do 
+        before(:each) do
+          expect_any_instance_of(TwilioVerifyClient).to receive(:send_sms_verification_code)
+            .with(user.mfa_config.country_code, user.mfa_config.cellphone)
+            .and_return('pending')
+        end
+    
+        describe "with a logged in user" do
+          before(:each) { sign_in user }
+
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
+
+            expect(body['sent']).to be_truthy
+            expect(body['message']).to eq("Token was sent.")
+          end
+        end
+
+        describe "with a user_id in the session" do
+          before(:each) { session["user_id"] = user.id }
+
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
+
+            expect(body['sent']).to be_truthy
+            expect(body['message']).to eq("Token was sent.")
+          end
+        end
+      end
+
+      context 'unsuccessfully' do 
+        before(:each) do
+          expect_any_instance_of(TwilioVerifyClient).to receive(:send_sms_verification_code)
+            .with(user.mfa_config.country_code, user.mfa_config.cellphone)
+            .and_return('not pending')
+        end
+    
+        describe "with a logged in user" do
+          before(:each) { sign_in user }
+
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
+
+            expect(body['sent']).to be_falsey
+            expect(body['message']).to eq("Token failed to send.")
+          end
+        end
+
+        describe "with a user_id in the session" do
+          before(:each) { session["user_id"] = user.id }
+
+          it "should send an SMS and respond with JSON" do
+            post :request_sms
+            expect(response.media_type).to eq('application/json')
+            body = JSON.parse(response.body)
+
+            expect(body['sent']).to be_falsey
+            expect(body['message']).to eq("Token failed to send.")
+          end
+        end
+      end
+    end
+
+    describe "#request_phone_call" do
       context 'successfully' do 
         before(:each) do
           expect_any_instance_of(TwilioVerifyClient).to receive(:send_sms_verification_code)
