@@ -80,7 +80,7 @@ class TwilioVerifyClient
     response = @client.verify.v2
                       .services(TWILIO_SERVICE_SID)
                       .verification_checks
-                      .create(to: "+#{country_code}#{phone_number}", code: code)
+                      .create(to: "+#{country_code}#{phone_number}", code: code, channel: 'sms')
     response.status
   end
 end
