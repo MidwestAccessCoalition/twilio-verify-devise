@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe User, type: :model do
+  it {is_expected.to have_one(:mfa_config)}
+
   describe "with a user with an authy id" do
     let!(:user) { create(:authy_user) }
 
