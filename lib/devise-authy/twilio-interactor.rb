@@ -1,4 +1,4 @@
-class TwilioInteractor
+class DeviseAuthy::TwilioInteractor
 
   def initialize(verify_client)
     @verify_client = verify_client

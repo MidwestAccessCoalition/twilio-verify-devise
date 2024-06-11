@@ -248,7 +248,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def initialize_twilio_verify_client
-    @verify_client = TwilioVerifyClient.new
-    @twilio_interactor = TwilioInteractor.new(@verify_client)
+    @verify_client = DeviseAuthy::TwilioVerifyClient.new
+    @twilio_interactor = DeviseAuthy::TwilioInteractor.new(@verify_client)
   end
 end
