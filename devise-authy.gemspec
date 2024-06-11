@@ -29,7 +29,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "devise", ">= 4.0.0"
-  spec.add_dependency "authy", "~> 3.0"
   spec.add_dependency "twilio-ruby", "~> 6.9"
   spec.add_dependency "rqrcode", "~> 2.0"
 
