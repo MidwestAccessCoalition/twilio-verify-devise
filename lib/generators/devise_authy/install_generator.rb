@@ -23,13 +23,6 @@ module DeviseAuthy
         "  # config.authy_enable_qr_code = false\n\n", :after => "Devise.setup do |config|\n"
       end
 
-      def add_initializer
-        initializer("authy.rb") do
-          "Authy.api_key = ENV[\"AUTHY_API_KEY\"]\n" \
-          "Authy.api_uri = \"https://api.authy.com/\""
-        end
-      end
-
       def copy_locale
         copy_file "../../../config/locales/en.yml", "config/locales/devise.authy.en.yml"
       end
@@ -53,30 +46,6 @@ module DeviseAuthy
           copy_file '../../../app/assets/stylesheets/devise_authy.css', 'app/assets/stylesheets/devise_authy.css'
         end
         copy_file '../../../app/assets/javascripts/devise_authy.js', 'app/assets/javascripts/devise_authy.js'
-      end
-
-      def inject_assets_in_layout
-        {
-          :haml => {
-            :before => %r{%body\s*$},
-            :content => %@
-    =javascript_include_tag "https://www.authy.com/form.authy.min.js"
-    =stylesheet_link_tag "https://www.authy.com/form.authy.min.css"
-@
-          },
-          :erb => {
-            :before => %r{\s*<\/\s*head\s*>\s*},
-            :content => %@
-  <%=javascript_include_tag "https://www.authy.com/form.authy.min.js" %>
-  <%=stylesheet_link_tag "https://www.authy.com/form.authy.min.css" %>
-@
-          }
-        }.each do |extension, opts|
-          file_path = File.join(destination_root, "app", "views", "layouts", "application.html.#{extension}")
-          if File.exist?(file_path) && !File.read(file_path).include?("form.authy.min.js")
-            inject_into_file(file_path, opts.delete(:content), opts)
-          end
-        end
       end
     end
   end

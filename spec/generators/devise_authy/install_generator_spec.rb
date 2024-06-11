@@ -50,14 +50,11 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
       expect(devise_config).to match("# config.authy_enable_qr_code = false")
     end
 
-    it "creates an authy initializer" do
+    it "does not creates an authy initializer" do
       expect(destination_root).to have_structure {
         directory "config" do
           directory "initializers" do
-            file "authy.rb" do
-              contains "Authy.api_key = ENV[\"AUTHY_API_KEY\"]\n"
-              contains "Authy.api_uri = \"https://api.authy.com/\""
-            end
+            no_file "authy.rb"
           end
         end
       }
@@ -100,8 +97,8 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
           directory "views" do
             directory "layouts" do
               file "application.html.erb" do
-                contains "<%=javascript_include_tag \"https://www.authy.com/form.authy.min.js\" %>"
-                contains "<%=stylesheet_link_tag \"https://www.authy.com/form.authy.min.css\" %>"
+                does_not_contain "<%=javascript_include_tag \"https://www.authy.com/form.authy.min.js\" %>"
+                does_not_contain "<%=stylesheet_link_tag \"https://www.authy.com/form.authy.min.css\" %>"
               end
             end
           end
