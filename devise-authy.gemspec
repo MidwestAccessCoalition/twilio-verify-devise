@@ -46,7 +46,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "webmock", "~> 3.11.0"
   spec.add_development_dependency "rails", ">= 6"
   spec.add_development_dependency "sqlite3"
-  spec.add_development_dependency "generator_spec"
+  spec.add_development_dependency "generator_spec", ">= 0.10.0"
   spec.add_development_dependency "database_cleaner", "~> 2.0"
   spec.add_development_dependency "factory_bot_rails", "~> 5.1.1"
   spec.add_development_dependency "pry"
