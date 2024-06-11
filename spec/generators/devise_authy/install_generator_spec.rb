@@ -99,8 +99,8 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
           directory "views" do
             directory "layouts" do
               file "application.html.erb" do
-                contains "<%=javascript_include_tag \"https://www.authy.com/form.authy.min.js\" %>"
-                contains "<%=stylesheet_link_tag \"https://www.authy.com/form.authy.min.css\" %>"
+                does_not_contain "<%=javascript_include_tag \"https://www.authy.com/form.authy.min.js\" %>"
+                does_not_contain "<%=stylesheet_link_tag \"https://www.authy.com/form.authy.min.css\" %>"
               end
             end
           end
