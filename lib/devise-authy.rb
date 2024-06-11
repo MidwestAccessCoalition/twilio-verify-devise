@@ -31,13 +31,11 @@ require 'devise-authy/routes'
 require 'devise-authy/rails'
 require 'devise-authy/models/authy_authenticatable'
 require 'devise-authy/models/authy_lockable'
-require 'devise-authy/models/verify_mfaable'
 require 'devise-authy/version'
 
 Authy.user_agent = "DeviseAuthy/#{DeviseAuthy::VERSION} - #{Authy.user_agent}"
 
 Devise.add_module :authy_authenticatable, :model => 'devise-authy/models/authy_authenticatable', :controller => :devise_authy, :route => :authy
 Devise.add_module :authy_lockable,        :model => 'devise-authy/models/authy_lockable'
-Devise.add_module :verify_mfaable,        :model => 'devise-authy/models/verify_mfaable'
 
 warn "DEPRECATION WARNING: The authy-devise library is no longer actively maintained. The Authy API is being replaced by the Twilio Verify API. Please see the README for more details."
