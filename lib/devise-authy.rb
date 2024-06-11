@@ -7,9 +7,8 @@ require_relative './twilio-verify-client'
 require_relative './twilio-interactor'
 
 module Devise
-  mattr_accessor :authy_remember_device, :authy_enable_onetouch, :authy_enable_qr_code
+  mattr_accessor :authy_remember_device, :authy_enable_qr_code
   @@authy_remember_device = 1.month
-  @@authy_enable_onetouch = false
   @@authy_enable_qr_code = false
 end
 
