@@ -30,6 +30,7 @@ FactoryBot.define do
     password { "correct horse battery staple" }
     authy_id { generate(:authy_id) }
     authy_enabled { true }
+    mfa_config
   end
 
   factory :mfa_config do

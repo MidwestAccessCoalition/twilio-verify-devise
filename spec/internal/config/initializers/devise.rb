@@ -8,9 +8,6 @@ Devise.setup do |config|
   # How long should the user's device be remembered for.
   # config.authy_remember_device = 1.month
 
-  # Should Authy OneTouch be enabled?
-  # config.authy_enable_onetouch = false
-
   # The secret key used by Devise. Devise uses this key to generate
   # random tokens. Changing this key will render invalid all existing
   # confirmation, reset password and unlock tokens in the database.
