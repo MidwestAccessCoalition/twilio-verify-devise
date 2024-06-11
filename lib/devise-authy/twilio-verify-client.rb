@@ -3,7 +3,8 @@
 require 'twilio-ruby'
 
 # Help: https://www.twilio.com/docs/verify/quickstarts/totp
-class DeviseAuthy::TwilioVerifyClient
+module DeviseAuthy
+class TwilioVerifyClient
   # For development these values can be found in the Twilio Console at https://console.twilio.com.
   TWILIO_ACCOUNT_SID = ENV['TWILIO_ACCOUNT_SID']
   TWILIO_AUTH_TOKEN = ENV['TWILIO_AUTH_TOKEN']
@@ -96,4 +97,5 @@ class DeviseAuthy::TwilioVerifyClient
     response.status
   end
 
+end
 end

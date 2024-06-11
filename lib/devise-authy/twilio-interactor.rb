@@ -1,4 +1,5 @@
-class DeviseAuthy::TwilioInteractor
+module DeviseAuthy
+class TwilioInteractor
 
   def initialize(verify_client)
     @verify_client = verify_client
@@ -84,4 +85,5 @@ class DeviseAuthy::TwilioInteractor
     end
     status == 'approved'
   end
+end
 end
