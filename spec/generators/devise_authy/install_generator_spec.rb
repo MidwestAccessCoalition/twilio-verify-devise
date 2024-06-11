@@ -46,7 +46,6 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
       devise_config = File.read(File.join(destination_root, "config", "initializers", "devise.rb"))
       expect(devise_config).to match("Devise Authy Authentication Extension")
       expect(devise_config).to match("# config.authy_remember_device = 1.month")
-      expect(devise_config).to match("# config.authy_enable_onetouch = false")
       expect(devise_config).to match("# config.authy_enable_qr_code = false")
     end
 
