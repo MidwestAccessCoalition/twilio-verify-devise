@@ -1,12 +1,8 @@
-🚨🚨🚨
 
-
-# Twilio Verify Devise [![Build Status](https://github.com/twilio/authy-devise/workflows/build/badge.svg)](https://github.com/twilio/authy-devise/actions)
+# Twilio Verify Devise
 
 This is a [Devise](https://github.com/heartcombo/devise) extension to add [Two-Factor Authentication with Twilio Verify](https://www.twilio.com/docs/verify) to your Rails application.
 
-Please visit the Twilio Docs for more information:
-[Twilio Verify API](https://www.twilio.com/docs/verify)
 * [Verify + Ruby (Rails) quickstart](https://www.twilio.com/docs/verify/quickstarts/ruby-rails)
 * [Twilio Ruby helper library](https://www.twilio.com/docs/libraries/ruby)
 * [Verify API reference](https://www.twilio.com/docs/verify/api)
