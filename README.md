@@ -43,11 +43,13 @@ This is a [Devise](https://github.com/plataformatec/devise) extension to add [Tw
 
 To use the Twilio Verify API you will need a Twilio Account, [sign up for a free Twilio account here](https://www.twilio.com/try-twilio).
 
-Create an [Twilio Verify Application in the Twilio console](https://www.twilio.com/console/authy/applications) and take note of the API key.
+
+Create an Twilio Verify Application in the Twilio console and take note of the API key.
 
 ## Getting started
 
-First get your Twilio Verify API key from [the Twilio console](https://www.twilio.com/console/authy/applications). We recommend you store your API key as an environment variable.
+# update URL on line 51 
+First get your Twilio Verify API key from the Twilio console. We recommend you store your API key as an environment variable.
 
 ```bash
 $ export TWILIO_AUTH_TOKEN=YOUR_TWILIO_AUTH_TOKEN
@@ -59,14 +61,15 @@ Next add the gem to your Gemfile:
 
 ```ruby
 gem 'devise'
-gem 'devise-twilio-verify'
+gem 'devise-authy', git: 'https://github.com/MidwestAccessCoalition/twilio-verify-devise.git'
+
 ```
 
 And then run `bundle install`
 
 Add `Devise Twilio Verify` to your App:
 
-    rails g devise_twilio_verify:install
+    rails g devise_authy:install
 
     --haml: Generate the views in Haml
     --sass: Generate the stylesheets in Sass
@@ -80,41 +83,7 @@ You can add devise_twilio_verify to your user model in two ways.
 Run the following command:
 
 ```bash
-rails g devise_twilio_verify [MODEL_NAME]
-```
-
-To support account locking (recommended), you must add `:twilio_verify_lockable` to the `devise :twilio_verify_authenticatable, ...` configuration in your model as this is not yet supported by the generator.
-
-#### Manually
-
-Add `:twilio_verify_authenticatable` and `:twilio_verify_lockable` to the `devise` options in your Devise user model:
-
-```ruby
-devise :twilio_verify_authenticatable, :twilio_verify_lockable, :database_authenticatable, :lockable
-```
-
-(Note, `:twilio_verify_lockable` is optional but recommended. It should be used with Devise's own `:lockable` module).
-
-Also add a new migration. For example, if you are adding to the `User` model, use this migration:
-
-```ruby
-class DeviseTwilioVerifyAddToUsers < ActiveRecord::Migration[6.0]
-  def self.up
-    change_table :users do |t|
-      t.string    :authy_id
-      t.datetime  :last_sign_in_with_twilio_verify
-      t.boolean   :twilio_verify_enabled, :default => false
-    end
-
-    add_index :users, :authy_id
-  end
-
-  def self.down
-    change_table :users do |t|
-      t.remove :authy_id, :last_sign_in_with_twilio_verify, :twilio_verify_enabled
-    end
-  end
-end
+rails g devise_authy [MODEL_NAME]
 ```
 
 #### Final steps
