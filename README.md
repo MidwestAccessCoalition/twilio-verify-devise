@@ -40,9 +40,77 @@ This is a [Devise](https://github.com/plataformatec/devise) extension to add [Tw
 
 ## Pre-requisites
 
-To use the Authy API you will need a Twilio Account, [sign up for a free Twilio account here](https://www.twilio.com/try-twilio).
 
-Create an [Authy Application in the Twilio console](https://www.twilio.com/console/authy/applications) and take note of the API key.
+To use the Twilio Verify API you will need a Twilio Account, [sign up for a free Twilio account here](https://www.twilio.com/try-twilio).
+
+
+Create an Twilio Verify Application in the Twilio console and take note of the API key.
+
+## Getting started
+
+# update URL on line 51 
+First get your Twilio Verify API key from the Twilio console. We recommend you store your API key as an environment variable.
+
+```bash
+$ export TWILIO_AUTH_TOKEN=YOUR_TWILIO_AUTH_TOKEN
+$ export TWILIO_ACCOUNT_SID=YOUR_TWILIO_ACCOUNT_SID
+$ export TWILIO_VERIFY_SERVICE_SID=YOUR_TWILIO_VERIFY_SERVICE_SID
+```
+
+Next add the gem to your Gemfile:
+
+```ruby
+gem 'devise'
+gem 'devise-authy', git: 'https://github.com/MidwestAccessCoalition/twilio-verify-devise.git'
+
+```
+
+And then run `bundle install`
+
+Add `Devise Twilio Verify` to your App:
+
+    rails g devise_authy:install
+
+    --haml: Generate the views in Haml
+    --sass: Generate the stylesheets in Sass
+
+### Configuring Models
+
+You can add devise_twilio_verify to your user model in two ways.
+
+#### With the generator
+
+Run the following command:
+
+```bash
+rails g devise_authy [MODEL_NAME]
+```
+
+#### Final steps
+
+For either method above, run the migrations:
+
+```bash
+rake db:migrate
+```
+
+**[Optional]** Update the default routes to point to something like:
+
+```ruby
+devise_for :users, :path_names => {
+	:verify_twilio_verify => "/verify-token",
+	:enable_twilio_verify => "/enable-two-factor",
+	:verify_twilio_verify_installation => "/verify-installation"
+}
+```
+
+Now whenever a user wants to enable two-factor authentication they can go to:
+
+    http://your-app/users/enable-two-factor
+
+And when the user logs in they will be redirected to:
+
+    http://your-app/users/verify-token
 
 ## Demo
 
