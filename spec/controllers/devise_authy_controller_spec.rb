@@ -61,7 +61,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
       it "Should render the second step of authentication" do
         get :GET_verify_authy
         expect(response).to render_template('verify_authy')
-        expect(assigns(:verify_client)).to be_an_instance_of TwilioVerifyClient
+        expect(assigns(:verify_client)).to be_an_instance_of DeviseAuthy::TwilioVerifyClient
       end
     end
 
@@ -273,7 +273,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
         describe "with a successful creation of MfaConfig" do
           before(:each) do
-            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+            expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:register_totp_factor)
               .and_return(
                 double('new_factor',
                        identity: 'identity',
@@ -300,7 +300,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
         describe "but a user that can't be saved" do
           before(:each) do
-            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+            expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:register_totp_factor)
               .and_return(
                 double('new_factor',
                        identity: 'identity',
@@ -323,7 +323,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
         describe "with an unsuccessful registration to Twilio Verify" do
           before(:each) do
-            expect_any_instance_of(TwilioVerifyClient).to receive(:register_totp_factor)
+            expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:register_totp_factor)
               .and_raise(StandardError)
 
             post :POST_enable_authy, :params => { :cellphone => cellphone, :country_code => country_code }
@@ -416,7 +416,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           describe "successful verification" do
             before(:each) do
-              expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_registration)
+              expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:validate_totp_registration)
                 .with(
                   user.mfa_config.verify_identity,
                   user.mfa_config.verify_factor_id,
@@ -446,7 +446,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
           describe "successful verification with remember device" do
             before(:each) do
-              expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_registration)
+              expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:validate_totp_registration)
                 .with(
                   user.mfa_config.verify_identity,
                   user.mfa_config.verify_factor_id,
@@ -479,14 +479,14 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           describe "unsuccessful verification" do
             let(:totp_invalid_status) { 'invalid' }
             before(:each) do
-              expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_registration)
+              expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:validate_totp_registration)
                 .with(
                   user.mfa_config.verify_identity,
                   user.mfa_config.verify_factor_id,
                   token
                 ).and_return(totp_invalid_status)
 
-              expect_any_instance_of(TwilioVerifyClient).to receive(:check_sms_verification_code)
+              expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:check_sms_verification_code)
                 .with(
                   user.mfa_config.country_code,
                   user.mfa_config.cellphone,
@@ -517,7 +517,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               secure: false,
               expires: User.authy_remember_device.from_now
             }
-            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+            expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:delete_entity)
               .with(user.mfa_config.verify_identity)
               .and_return(true)
 
@@ -547,7 +547,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               secure: false,
               expires: User.authy_remember_device.from_now
             }
-            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+            expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:delete_entity)
               .with(user.mfa_config.verify_identity)
               .and_raise(StandardError)
 
@@ -577,7 +577,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               secure: false,
               expires: User.authy_remember_device.from_now
             }
-            expect_any_instance_of(TwilioVerifyClient).to receive(:delete_entity)
+            expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:delete_entity)
               .with(user.mfa_config.verify_identity)
               .and_return(true)
 
@@ -613,7 +613,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
   describe "requesting authentication tokens" do
     describe "without a user" do
       it "Should not request sms if user couldn't be found" do
-        expect_any_instance_of(TwilioVerifyClient).not_to receive(:send_sms_verification_code)
+        expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).not_to receive(:send_sms_verification_code)
 
         post :request_sms
 
@@ -638,7 +638,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     describe "#request_sms" do
       context 'successfully' do 
         before(:each) do
-          expect_any_instance_of(TwilioVerifyClient).to receive(:send_sms_verification_code)
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:send_sms_verification_code)
             .with(user.mfa_config.country_code, user.mfa_config.cellphone)
             .and_return('pending')
         end
@@ -672,7 +672,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
       context 'unsuccessfully' do 
         before(:each) do
-          expect_any_instance_of(TwilioVerifyClient).to receive(:send_sms_verification_code)
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:send_sms_verification_code)
             .with(user.mfa_config.country_code, user.mfa_config.cellphone)
             .and_return('not pending')
         end
