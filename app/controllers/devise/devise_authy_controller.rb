@@ -5,7 +5,7 @@ class Devise::DeviseAuthyController < DeviseController
     :request_phone_call, :request_sms
   ]
   prepend_before_action :find_resource_and_require_password_checked, :only => [
-    :GET_verify_authy, :POST_verify_authy, :GET_authy_onetouch_status
+    :GET_verify_authy, :POST_verify_authy
   ]
 
   prepend_before_action :check_resource_has_authy_id, :only => [
@@ -135,24 +135,6 @@ class Devise::DeviseAuthyController < DeviseController
     end
   end
 
-  def GET_authy_onetouch_status
-    response = Authy::OneTouch.approval_request_status(:uuid => params[:onetouch_uuid])
-    status = response.dig('approval_request', 'status')
-    case status
-    when 'pending'
-      head 202
-    when 'approved'
-      remember_device(@resource.id) if params[:remember_device].to_i == 1
-      remember_user
-      record_twilio_authentication
-      render json: { redirect: after_sign_in_path_for(@resource) }
-    when 'denied'
-      head :unauthorized
-    else
-      head :internal_server_error
-    end
-  end
-
   def request_phone_call
     unless @resource && @resource.mfa_config
       render json: { sent: false, message: "User couldn't be found." }
@@ -251,7 +233,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def initialize_twilio_verify_client
-    @verify_client = TwilioVerifyClient.new
-    @twilio_interactor = TwilioInteractor.new(@verify_client)
+    @verify_client = DeviseAuthy::TwilioVerifyClient.new
+    @twilio_interactor = DeviseAuthy::TwilioInteractor.new(@verify_client)
   end
 end
