@@ -20,7 +20,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         end
 
         it "should not verify a token" do
-          expect_any_instance_of(TwilioInteractor).not_to receive(:login_token_valid?)
+          expect_any_instance_of(DeviseAuthy::TwilioInteractor).not_to receive(:login_token_valid?)
           post :POST_verify_authy
         end
       end
@@ -43,7 +43,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         end
 
         it "should not verify a token" do
-          expect_any_instance_of(TwilioInteractor).not_to receive(:login_token_valid?)
+          expect_any_instance_of(DeviseAuthy::TwilioInteractor).not_to receive(:login_token_valid?)
           post :POST_verify_authy
         end
       end
