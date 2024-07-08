@@ -20,7 +20,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         end
 
         it "should not verify a token" do
-          expect_any_instance_of(TwilioInteractor).not_to receive(:login_token_valid?)
+          expect_any_instance_of(DeviseAuthy::TwilioInteractor).not_to receive(:login_token_valid?)
           post :POST_verify_authy
         end
       end
@@ -43,7 +43,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         end
 
         it "should not verify a token" do
-          expect_any_instance_of(TwilioInteractor).not_to receive(:login_token_valid?)
+          expect_any_instance_of(DeviseAuthy::TwilioInteractor).not_to receive(:login_token_valid?)
           post :POST_verify_authy
         end
       end
@@ -74,7 +74,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
       describe "with a valid token" do 
         before(:each) {
-          expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_token).with(
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:validate_totp_token).with(
             user.mfa_config.verify_identity,
             user.mfa_config.verify_factor_id,
             valid_verify_token
@@ -146,13 +146,13 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
       describe "with an invalid token" do
         before(:each) {
-          expect_any_instance_of(TwilioVerifyClient).to receive(:validate_totp_token).with(
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:validate_totp_token).with(
             user.mfa_config.verify_identity,
             user.mfa_config.verify_factor_id,
             invalid_verify_token
           ).and_return(verify_failure)
 
-          expect_any_instance_of(TwilioVerifyClient).to receive(:check_sms_verification_code).with(
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:check_sms_verification_code).with(
             user.mfa_config.country_code,
             user.mfa_config.cellphone,
             invalid_verify_token
