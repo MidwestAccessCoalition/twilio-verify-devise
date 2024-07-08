@@ -4,8 +4,8 @@ require 'active_support/core_ext/integer/time'
 require 'devise'
 require 'authy'
 require 'rqrcode'
-require_relative './twilio-verify-client'
-require_relative './twilio-interactor'
+require 'devise-authy/twilio-verify-client'
+require 'devise-authy/twilio-interactor'
 
 module Devise
   mattr_accessor :authy_remember_device, :authy_enable_qr_code
