@@ -624,7 +624,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
       end
 
       it "Should not request a phone call if user couldn't be found" do
-        expect_any_instance_of(TwilioVerifyClient).not_to receive(:request_phone_call)
+        expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).not_to receive(:request_phone_call)
 
         post :request_phone_call
 
@@ -708,7 +708,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     describe "#request_phone_call" do
       context 'successfully' do 
         before(:each) do
-          expect_any_instance_of(TwilioVerifyClient).to receive(:send_call_verification_code)
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:send_call_verification_code)
             .with(user.mfa_config.country_code, user.mfa_config.cellphone)
             .and_return('pending')
         end
@@ -742,7 +742,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
       context 'unsuccessfully' do 
         before(:each) do
-          expect_any_instance_of(TwilioVerifyClient).to receive(:send_call_verification_code)
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:send_call_verification_code)
             .with(user.mfa_config.country_code, user.mfa_config.cellphone)
             .and_return('not pending')
         end
