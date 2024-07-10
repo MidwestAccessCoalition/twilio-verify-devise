@@ -20,7 +20,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         end
 
         it "should not verify a token" do
-          expect(Authy::API).not_to receive(:verify)
+          expect_any_instance_of(DeviseAuthy::TwilioInteractor).not_to receive(:login_token_valid?)
           post :POST_verify_authy
         end
       end
@@ -43,7 +43,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         end
 
         it "should not verify a token" do
-          expect(Authy::API).not_to receive(:verify)
+          expect_any_instance_of(DeviseAuthy::TwilioInteractor).not_to receive(:login_token_valid?)
           post :POST_verify_authy
         end
       end
@@ -66,23 +66,24 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     end
 
     describe "POST #verify_authy" do
-      let(:verify_success) { double("Authy::Response", :ok? => true) }
-      let(:verify_failure) { double("Authy::Response", :ok? => false) }
-      let(:valid_authy_token) { rand(0..999999).to_s.rjust(6, '0') }
-      let(:invalid_authy_token) { rand(0..999999).to_s.rjust(6, '0') }
+      let(:verify_success) { 'approved' }
+      let(:verify_failure) { 'invalid' }
+      let(:valid_verify_token) { rand(0..999999).to_s.rjust(6, '0') }
+      let(:invalid_verify_token) { rand(0..999999).to_s.rjust(6, '0') }
+      let(:user) { create(:authy_user)}
 
-      describe "with a valid token" do
+      describe "with a valid token" do 
         before(:each) {
-          expect(Authy::API).to receive(:verify).with({
-            :id => user.authy_id,
-            :token => valid_authy_token,
-            :force => true
-          }).and_return(verify_success)
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:validate_totp_token).with(
+            user.mfa_config.verify_identity,
+            user.mfa_config.verify_factor_id,
+            valid_verify_token
+          ).and_return(verify_success)
         }
 
         describe "without remembering" do
           before(:each) {
-            post :POST_verify_authy, params: { :token => valid_authy_token }
+            post :POST_verify_authy, params: { :token => valid_verify_token }
           }
 
           it "should log the user in" do
@@ -116,7 +117,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         describe "and remember device selected" do
           before(:each) {
             post :POST_verify_authy, params: {
-              :token => valid_authy_token,
+              :token => valid_verify_token,
               :remember_device => '1'
             }
           }
@@ -133,7 +134,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         describe "and remember_me in the session" do
           before(:each) do
             request.session["user_remember_me"] = true
-            post :POST_verify_authy, params: { :token => valid_authy_token }
+            post :POST_verify_authy, params: { :token => valid_verify_token }
           end
 
           it "should remember the user" do
@@ -145,12 +146,19 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
 
       describe "with an invalid token" do
         before(:each) {
-          expect(Authy::API).to receive(:verify).with({
-            :id => user.authy_id,
-            :token => invalid_authy_token,
-            :force => true
-          }).and_return(verify_failure)
-          post :POST_verify_authy, params: { :token => invalid_authy_token }
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:validate_totp_token).with(
+            user.mfa_config.verify_identity,
+            user.mfa_config.verify_factor_id,
+            invalid_verify_token
+          ).and_return(verify_failure)
+
+          expect_any_instance_of(DeviseAuthy::TwilioVerifyClient).to receive(:check_sms_verification_code).with(
+            user.mfa_config.country_code,
+            user.mfa_config.cellphone,
+            invalid_verify_token
+          ).and_return(verify_failure)
+
+          post :POST_verify_authy, params: { :token => invalid_verify_token }
         }
 
         it "Shouldn't log the user in" do
@@ -177,13 +185,15 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
         end
 
         it 'locks the account when failed_attempts exceeds maximum' do
-          expect(Authy::API).to receive(:verify).exactly(Devise.maximum_attempts).times.with({
-            :id => lockable_user.authy_id,
-            :token => invalid_authy_token,
-            :force => true
-          }).and_return(verify_failure)
+          # this is weird but the problem is that every time the call was made, there would be a new TwilioInteractor
+          # so we'd get weird results when trying to count this.
+          expect_any_instance_of(Devise::DeviseAuthyController).to receive(:login_token_valid?).exactly(Devise.maximum_attempts).times.with(
+            lockable_user.mfa_config,
+            invalid_verify_token
+          ).and_return(false)
+
           (Devise.maximum_attempts).times do
-            post :POST_verify_authy, params: { token: invalid_authy_token }
+            post :POST_verify_authy, params: { token: invalid_verify_token }
           end
 
           lockable_user.reload
@@ -196,14 +206,15 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
           request.session['user_id']               = user.id
           request.session['user_password_checked'] = true
 
-          expect(Authy::API).to receive(:verify).exactly(Devise.maximum_attempts).times.with({
-            :id => user.authy_id,
-            :token => invalid_authy_token,
-            :force => true
-          }).and_return(verify_failure)
+          # this is weird but the problem is that every time the call was made, there would be a new TwilioInteractor
+          # so we'd get weird results when trying to count this.
+          expect_any_instance_of(Devise::DeviseAuthyController).to receive(:login_token_valid?).exactly(Devise.maximum_attempts).times.with(
+            user.mfa_config,
+            invalid_verify_token
+          ).and_return(false)
 
           Devise.maximum_attempts.times do
-            post :POST_verify_authy, params: { token: invalid_authy_token }
+            post :POST_verify_authy, params: { token: invalid_verify_token }
           end
 
           user.reload

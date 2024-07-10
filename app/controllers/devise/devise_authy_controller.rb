@@ -24,7 +24,7 @@ class Devise::DeviseAuthyController < DeviseController
   before_action :initialize_twilio_verify_client
 
   attr_reader :twilio_interactor
-  delegate :delete_entity, :registration_token_valid?, :register_totp, to: :twilio_interactor, private: true
+  delegate :delete_entity, :login_token_valid?, :registration_token_valid?, :register_totp, to: :twilio_interactor, private: true
 
   include Devise::Controllers::Helpers
 
@@ -36,17 +36,11 @@ class Devise::DeviseAuthyController < DeviseController
 
   # verify 2fa
   def POST_verify_authy
-    token = Authy::API.verify({
-      :id => @resource.authy_id,
-      :token => params[:token],
-      :force => true
-    })
-
-    if token.ok?
+    if login_token_valid?(@resource.mfa_config, params[:token])
       remember_device(@resource.id) if params[:remember_device].to_i == 1
       remember_user
       record_twilio_authentication
-      respond_with resource, :location => after_sign_in_path_for(@resource)
+      respond_with resource, location: after_sign_in_path_for(@resource)
     else
       handle_invalid_token :verify_authy, :invalid_token
     end
