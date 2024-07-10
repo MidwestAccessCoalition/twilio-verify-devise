@@ -4,6 +4,10 @@ module Devise
     module AuthyAuthenticatable
       extend ActiveSupport::Concern
 
+      included do
+        has_one :mfa_config, as: :resource
+      end
+
       def with_authy_authentication?(request)
         if self.authy_id.present? && self.authy_enabled
           return true
