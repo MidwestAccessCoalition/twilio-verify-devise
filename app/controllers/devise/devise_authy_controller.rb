@@ -24,7 +24,7 @@ class Devise::DeviseAuthyController < DeviseController
   before_action :initialize_twilio_verify_client
 
   attr_reader :twilio_interactor
-  delegate :delete_entity, :registration_token_valid?, :register_totp, to: :twilio_interactor, private: true
+  delegate :delete_entity, :login_token_valid?, :registration_token_valid?, :register_totp, to: :twilio_interactor, private: true
 
   include Devise::Controllers::Helpers
 
@@ -36,17 +36,11 @@ class Devise::DeviseAuthyController < DeviseController
 
   # verify 2fa
   def POST_verify_authy
-    token = Authy::API.verify({
-      :id => @resource.authy_id,
-      :token => params[:token],
-      :force => true
-    })
-
-    if token.ok?
+    if login_token_valid?(@resource.mfa_config, params[:token])
       remember_device(@resource.id) if params[:remember_device].to_i == 1
       remember_user
       record_twilio_authentication
-      respond_with resource, :location => after_sign_in_path_for(@resource)
+      respond_with resource, location: after_sign_in_path_for(@resource)
     else
       handle_invalid_token :verify_authy, :invalid_token
     end
@@ -136,13 +130,16 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def request_phone_call
-    unless @resource
-      render :json => { :sent => false, :message => "User couldn't be found." }
+    unless @resource && @resource.mfa_config
+      render json: { sent: false, message: "User couldn't be found." }
       return
     end
 
-    response = Authy::API.request_phone_call(:id => @resource.authy_id, :force => true)
-    render :json => { :sent => response.ok?, :message => response.message }
+    mfa_config = @resource.mfa_config
+    status = @verify_client.send_call_verification_code(mfa_config.country_code, mfa_config.cellphone)
+
+    message = status == 'pending' ? 'Token was sent.' : 'Token failed to send.'
+    render json: { sent: status == 'pending', message: message }
   end
 
   def request_sms
@@ -230,7 +227,7 @@ class Devise::DeviseAuthyController < DeviseController
   end
 
   def initialize_twilio_verify_client
-    @verify_client = TwilioVerifyClient.new
-    @twilio_interactor = TwilioInteractor.new(@verify_client)
+    @verify_client = DeviseAuthy::TwilioVerifyClient.new
+    @twilio_interactor = DeviseAuthy::TwilioInteractor.new(@verify_client)
   end
 end

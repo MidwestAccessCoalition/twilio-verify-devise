@@ -235,4 +235,4 @@ For more information please read this article on [how we are discontinuing the T
 
 ## Copyright
 
-Copyright (c) 2012-2021 Authy Inc. See LICENSE.txt for further details.
+See LICENSE.txt for further details.
