@@ -3,9 +3,6 @@
 
 This is a [Devise](https://github.com/heartcombo/devise) extension to add [Two-Factor Authentication with Twilio Verify](https://www.twilio.com/docs/verify) to your Rails application.
 
-* [Verify + Ruby (Rails) quickstart](https://www.twilio.com/docs/verify/quickstarts/ruby-rails)
-* [Twilio Ruby helper library](https://www.twilio.com/docs/libraries/ruby)
-* [Verify API reference](https://www.twilio.com/docs/verify/api)
 * [Pre-requisites](#pre-requisites)
 * [Demo](#demo)
 * [Getting started](#getting-started)
