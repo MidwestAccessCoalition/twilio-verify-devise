@@ -11,6 +11,7 @@ This is a [Devise](https://github.com/heartcombo/devise) extension to add [Two-F
     * [Manually](#manually)
     * [Final steps](#final-steps)
 * [Custom Views](#custom-views)
+* [Request a phone call](#request-a-phone-call)
 * [Custom Redirect Paths (eg. using modules)](#custom-redirect-paths-eg-using-modules)
 * [I18n](#i18n)
 * [Session variables](#session-variables)
