@@ -184,6 +184,14 @@ For either method above, run the migrations:
 rake db:migrate
 ```
 
+**[Optional]** Update the default routes to point to something like:
+
+```ruby
+devise_for :users, :path_names => {
+	:verify_authy => "/verify-token",
+	:enable_authy => "/enable-two-factor",
+	:verify_authy_installation => "/verify-installation"
+}
 
 Now whenever a user wants to enable two-factor authentication they can go to:
 
