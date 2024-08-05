@@ -2,10 +2,9 @@ require 'active_support' # is required before using anything inside active_suppo
 require 'active_support/concern'
 require 'active_support/core_ext/integer/time'
 require 'devise'
-require 'authy'
 require 'rqrcode'
-require_relative './twilio-verify-client'
-require_relative './twilio-interactor'
+require 'devise-authy/twilio-verify-client'
+require 'devise-authy/twilio-interactor'
 
 module Devise
   mattr_accessor :authy_remember_device, :authy_enable_qr_code
@@ -32,8 +31,6 @@ require 'devise-authy/models/authy_authenticatable'
 require 'devise-authy/models/authy_lockable'
 require 'devise-authy/models/verify_mfaable'
 require 'devise-authy/version'
-
-Authy.user_agent = "DeviseAuthy/#{DeviseAuthy::VERSION} - #{Authy.user_agent}"
 
 Devise.add_module :authy_authenticatable, :model => 'devise-authy/models/authy_authenticatable', :controller => :devise_authy, :route => :authy
 Devise.add_module :authy_lockable,        :model => 'devise-authy/models/authy_lockable'
