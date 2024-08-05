@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe TwilioInteractor do
+RSpec.describe DeviseAuthy::TwilioInteractor do
   let(:verify_client) { double('verify_client') }
-  let(:interactor) { TwilioInteractor.new(verify_client) }
+  let(:interactor) { DeviseAuthy::TwilioInteractor.new(verify_client) }
 
   describe '#register_totp' do
     context 'when register_totp_factor returns a valid factor' do

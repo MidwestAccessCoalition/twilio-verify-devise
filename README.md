@@ -224,15 +224,6 @@ Run the following command:
 $ bundle exec rspec
 ```
 
-## Notice: Twilio Authy API’s Sandbox feature will stop working on Sep 30, 2021
-Twilio is discontinuing the Authy API’s Sandbox, a feature that allows customers to run continuous integration tests against a mock Authy API for free. The Sandbox is no longer being maintained, so we will be taking the final deprecation step of shutting it down on September 30, 2021. The rest of the Authy API product will continue working as-is.
-
-This repo previously used the sandbox API as part of the test suite, but that has been since removed.
-
-You will only be affected if you are using the sandbox API in your own application or test suite.
-
-For more information please read this article on [how we are discontinuing the Twilio Authy sandbox API](https://support.authy.com/hc/en-us/articles/1260803396889-Notice-Twilio-Authy-API-s-Sandbox-feature-will-stop-working-on-Sep-30-2021).
-
 ## Copyright
 
-Copyright (c) 2012-2021 Authy Inc. See LICENSE.txt for further details.
+See LICENSE.txt for further details.
