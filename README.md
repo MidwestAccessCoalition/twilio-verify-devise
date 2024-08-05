@@ -1,24 +1,7 @@
-🚨🚨🚨
 
-**This library is no longer actively maintained.** The Authy API has been replaced with the [Twilio Verify API](https://www.twilio.com/docs/verify). Twilio will support the Authy API through November 1, 2022 for SMS/Voice. After this date, we’ll start to deprecate the service for SMS/Voice. Any requests sent to the API after May 1, 2023, will automatically receive an error.  Push and TOTP will continue to be supported through July 2023.
+# Twilio Verify Devise
 
-[Learn more about migrating from Authy to Verify.](https://www.twilio.com/blog/migrate-authy-to-verify)
-
-Please visit the Twilio Docs for:
-* [Verify + Ruby (Rails) quickstart](https://www.twilio.com/docs/verify/quickstarts/ruby-rails)
-* [Twilio Ruby helper library](https://www.twilio.com/docs/libraries/ruby)
-* [Verify API reference](https://www.twilio.com/docs/verify/api)
-* **Coming soon**: Look out for a new Devise plugin to use Twilio Verify with Devise
-
-Please direct any questions to [Twilio Support](https://support.twilio.com/hc/en-us). Thank you!
-
-🚨🚨🚨
-
----
-
-# Authy Devise [![Build Status](https://github.com/twilio/authy-devise/workflows/build/badge.svg)](https://github.com/twilio/authy-devise/actions)
-
-This is a [Devise](https://github.com/plataformatec/devise) extension to add [Two-Factor Authentication with Authy](https://www.twilio.com/docs/authy) to your Rails application.
+This is a [Devise](https://github.com/heartcombo/devise) extension to add [Two-Factor Authentication with Twilio Verify](https://www.twilio.com/docs/verify) to your Rails application.
 
 * [Pre-requisites](#pre-requisites)
 * [Demo](#demo)
@@ -28,14 +11,13 @@ This is a [Devise](https://github.com/plataformatec/devise) extension to add [Tw
     * [Manually](#manually)
     * [Final steps](#final-steps)
 * [Custom Views](#custom-views)
-  * [Request a phone call](#request-a-phone-call)
+* [Request a phone call](#request-a-phone-call)
 * [Custom Redirect Paths (eg. using modules)](#custom-redirect-paths-eg-using-modules)
 * [I18n](#i18n)
 * [Session variables](#session-variables)
 * [Generic authenticator token support](#generic-authenticator-token-support)
 * [Rails 5 CSRF protection](#rails-5-csrf-protection)
 * [Running Tests](#running-tests)
-* [Notice: Twilio Authy API’s Sandbox feature will stop working on Sep 30, 2021](#notice-twilio-authy-apis-sandbox-feature-will-stop-working-on-sep-30-2021)
 * [Copyright](#copyright)
 
 ## Pre-requisites
