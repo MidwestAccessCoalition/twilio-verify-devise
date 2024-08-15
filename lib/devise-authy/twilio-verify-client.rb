@@ -6,12 +6,9 @@ require 'twilio-ruby'
 module DeviseAuthy
   class TwilioVerifyClient
     # For development these values can be found in the Twilio Console at https://console.twilio.com.
-    TWILIO_ACCOUNT_SID = ENV['TWILIO_ACCOUNT_SID']
-    TWILIO_AUTH_TOKEN = ENV['TWILIO_AUTH_TOKEN']
-    TWILIO_SERVICE_SID = ENV['TWILIO_VERIFY_SERVICE_SID']
 
     def initialize
-      @client = Twilio::REST::Client.new(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+      @client = Twilio::REST::Client.new(Devise.twilio_account_sid, Devise.twilio_auth_token)
     end
 
     #################################
@@ -19,7 +16,7 @@ module DeviseAuthy
     #################################
     def register_totp_factor(identity, friendly_name)
       @client.verify.v2
-             .services(TWILIO_SERVICE_SID)
+             .services(Devise.twilio_service_sid)
              .entities(identity)
              .new_factors
              .create(
@@ -30,7 +27,7 @@ module DeviseAuthy
 
     def validate_totp_registration(identity, factor_id, code)
       response = @client.verify.v2
-                        .services(TWILIO_SERVICE_SID)
+                        .services(Devise.twilio_service_sid)
                         .entities(identity)
                         .factors(factor_id)
                         .update(auth_payload: code)
@@ -39,7 +36,7 @@ module DeviseAuthy
 
     def validate_totp_token(identity, factor_id, code)
       response = @client.verify.v2
-                        .services(TWILIO_SERVICE_SID)
+                        .services(Devise.twilio_service_sid)
                         .entities(identity)
                         .challenges
                         .create(
@@ -52,7 +49,7 @@ module DeviseAuthy
     # Returns true if successful.
     def delete_totp_factor(identity, factor_id)
       @client.verify.v2
-             .services(TWILIO_SERVICE_SID)
+             .services(Devise.twilio_service_sid)
              .entities(identity)
              .factors(factor_id)
              .delete
@@ -61,7 +58,7 @@ module DeviseAuthy
     # Returns true if successful.
     def delete_entity(identity)
       @client.verify.v2
-             .services(TWILIO_SERVICE_SID)
+             .services(Devise.twilio_service_sid)
              .entities(identity)
              .delete
     end
@@ -71,7 +68,7 @@ module DeviseAuthy
     #################################
     def send_sms_verification_code(country_code, phone_number)
       response = @client.verify.v2
-                        .services(TWILIO_SERVICE_SID)
+                        .services(Devise.twilio_service_sid)
                         .verifications
                         .create(to: "+#{country_code}#{phone_number}", channel: 'sms')
       response.status
@@ -79,7 +76,7 @@ module DeviseAuthy
 
     def check_sms_verification_code(country_code, phone_number, code)
       response = @client.verify.v2
-                        .services(TWILIO_SERVICE_SID)
+                        .services(Devise.twilio_service_sid)
                         .verification_checks
                         .create(to: "+#{country_code}#{phone_number}", code: code)
       response.status
@@ -91,7 +88,7 @@ module DeviseAuthy
 
     def send_call_verification_code(country_code, phone_number)
       response = @client.verify.v2
-                        .services(TWILIO_SERVICE_SID)
+                        .services(Devise.twilio_service_sid)
                         .verifications
                         .create(to: "+#{country_code}#{phone_number}", channel: 'call')
       response.status
