@@ -15,7 +15,7 @@ jobs:
         rails: [rails_6, rails_6_1, rails_7, rails_7_1, rails_7_2]
         twilio: [6, 7]
         exclude:
-          - gemfile: rails_7_2 # Rails 7.2 requires Ruby 3.1
+          - rails: rails_7_2 # Rails 7.2 requires Ruby 3.1
             ruby: "3.0"
     env:
       BUNDLE_GEMFILE: gemfiles/${{matrix.rails}}__twilio_${{ matrix.twilio }}.gemfile
