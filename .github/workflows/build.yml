@@ -13,12 +13,12 @@ jobs:
       matrix:
         ruby: ["3.0", 3.1, 3.2, 3.3]
         rails: [rails_6, rails_6_1, rails_7, rails_7_1, rails_7_2]
-        twilio: [6, 7]
+        twilio: [twilio_6, twilio_7]
         exclude:
           - rails: rails_7_2 # Rails 7.2 requires Ruby 3.1
             ruby: "3.0"
     env:
-      BUNDLE_GEMFILE: gemfiles/${{matrix.rails}}__twilio_${{ matrix.twilio }}.gemfile
+      BUNDLE_GEMFILE: gemfiles/${{matrix.rails}}__${{ matrix.twilio }}.gemfile
     steps:
       - uses: actions/checkout@v4
       - name: Set up Ruby ${{ matrix.ruby }}
