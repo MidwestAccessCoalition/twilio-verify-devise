@@ -1,24 +1,7 @@
-🚨🚨🚨
 
-**This library is no longer actively maintained.** The Authy API has been replaced with the [Twilio Verify API](https://www.twilio.com/docs/verify). Twilio will support the Authy API through November 1, 2022 for SMS/Voice. After this date, we’ll start to deprecate the service for SMS/Voice. Any requests sent to the API after May 1, 2023, will automatically receive an error.  Push and TOTP will continue to be supported through July 2023.
+# Twilio Verify Devise
 
-[Learn more about migrating from Authy to Verify.](https://www.twilio.com/blog/migrate-authy-to-verify)
-
-Please visit the Twilio Docs for:
-* [Verify + Ruby (Rails) quickstart](https://www.twilio.com/docs/verify/quickstarts/ruby-rails)
-* [Twilio Ruby helper library](https://www.twilio.com/docs/libraries/ruby)
-* [Verify API reference](https://www.twilio.com/docs/verify/api)
-* **Coming soon**: Look out for a new Devise plugin to use Twilio Verify with Devise
-
-Please direct any questions to [Twilio Support](https://support.twilio.com/hc/en-us). Thank you!
-
-🚨🚨🚨
-
----
-
-# Authy Devise [![Build Status](https://github.com/twilio/authy-devise/workflows/build/badge.svg)](https://github.com/twilio/authy-devise/actions)
-
-This is a [Devise](https://github.com/plataformatec/devise) extension to add [Two-Factor Authentication with Authy](https://www.twilio.com/docs/authy) to your Rails application.
+This is a [Devise](https://github.com/heartcombo/devise) extension to add [Two-Factor Authentication with Twilio Verify](https://www.twilio.com/docs/verify) to your Rails application.
 
 * [Pre-requisites](#pre-requisites)
 * [Demo](#demo)
@@ -28,22 +11,78 @@ This is a [Devise](https://github.com/plataformatec/devise) extension to add [Tw
     * [Manually](#manually)
     * [Final steps](#final-steps)
 * [Custom Views](#custom-views)
-  * [Request a phone call](#request-a-phone-call)
+* [Request a phone call](#request-a-phone-call)
 * [Custom Redirect Paths (eg. using modules)](#custom-redirect-paths-eg-using-modules)
 * [I18n](#i18n)
 * [Session variables](#session-variables)
-* [OneTouch support](#onetouch-support)
 * [Generic authenticator token support](#generic-authenticator-token-support)
 * [Rails 5 CSRF protection](#rails-5-csrf-protection)
 * [Running Tests](#running-tests)
-* [Notice: Twilio Authy API’s Sandbox feature will stop working on Sep 30, 2021](#notice-twilio-authy-apis-sandbox-feature-will-stop-working-on-sep-30-2021)
 * [Copyright](#copyright)
 
 ## Pre-requisites
 
-To use the Authy API you will need a Twilio Account, [sign up for a free Twilio account here](https://www.twilio.com/try-twilio).
 
-Create an [Authy Application in the Twilio console](https://www.twilio.com/console/authy/applications) and take note of the API key.
+To use the Twilio Verify API you will need a Twilio Account, [sign up for a free Twilio account here](https://www.twilio.com/try-twilio).
+
+
+Create an Twilio Verify Application in the Twilio console and take note of the API key.
+
+## Getting started
+
+# update URL on line 51 
+First get your Twilio Verify API key from the Twilio console. We recommend you store your API key as an environment variable.
+
+```bash
+$ export TWILIO_AUTH_TOKEN=YOUR_TWILIO_AUTH_TOKEN
+$ export TWILIO_ACCOUNT_SID=YOUR_TWILIO_ACCOUNT_SID
+$ export TWILIO_VERIFY_SERVICE_SID=YOUR_TWILIO_VERIFY_SERVICE_SID
+```
+
+Next add the gem to your Gemfile:
+
+```ruby
+gem 'devise'
+gem 'devise-authy', git: 'https://github.com/MidwestAccessCoalition/twilio-verify-devise.git'
+
+```
+
+And then run `bundle install`
+
+Add `Devise Twilio Verify` to your App:
+
+    rails g devise_authy:install
+
+    --haml: Generate the views in Haml
+    --sass: Generate the stylesheets in Sass
+
+### Configuring Models
+
+You can add devise_twilio_verify to your user model in two ways.
+
+#### With the generator
+
+Run the following command:
+
+```bash
+rails g devise_authy [MODEL_NAME]
+```
+
+#### Final steps
+
+For either method above, run the migrations:
+
+```bash
+rake db:migrate
+```
+
+Now whenever a user wants to enable two-factor authentication they can go to:
+
+    http://your-app/users/enable-two-factor
+
+And when the user logs in they will be redirected to:
+
+    http://your-app/users/verify-token
 
 ## Demo
 
@@ -133,10 +172,8 @@ rake db:migrate
 devise_for :users, :path_names => {
 	:verify_authy => "/verify-token",
 	:enable_authy => "/enable-two-factor",
-	:verify_authy_installation => "/verify-installation",
-	:authy_onetouch_status => "/onetouch-status"
+	:verify_authy_installation => "/verify-installation"
 }
-```
 
 Now whenever a user wants to enable two-factor authentication they can go to:
 
@@ -210,14 +247,6 @@ session["#{resource_name}_authy_token_checked"]
 session["user_authy_token_checked"]
 ```
 
-## OneTouch support
-
-To enable [Authy push authentication](https://www.twilio.com/authy/features/push), you need to modify the Devise config file `config/initializers/devise.rb` and add configuration:
-
-```
-config.authy_enable_onetouch = true
-```
-
 ## Generic authenticator token support
 
 Authy supports other authenticator apps by providing a QR code that your users can scan.
@@ -252,15 +281,6 @@ Run the following command:
 $ bundle exec rspec
 ```
 
-## Notice: Twilio Authy API’s Sandbox feature will stop working on Sep 30, 2021
-Twilio is discontinuing the Authy API’s Sandbox, a feature that allows customers to run continuous integration tests against a mock Authy API for free. The Sandbox is no longer being maintained, so we will be taking the final deprecation step of shutting it down on September 30, 2021. The rest of the Authy API product will continue working as-is.
-
-This repo previously used the sandbox API as part of the test suite, but that has been since removed.
-
-You will only be affected if you are using the sandbox API in your own application or test suite.
-
-For more information please read this article on [how we are discontinuing the Twilio Authy sandbox API](https://support.authy.com/hc/en-us/articles/1260803396889-Notice-Twilio-Authy-API-s-Sandbox-feature-will-stop-working-on-Sep-30-2021).
-
 ## Copyright
 
-Copyright (c) 2012-2021 Authy Inc. See LICENSE.txt for further details.
+See LICENSE.txt for further details.

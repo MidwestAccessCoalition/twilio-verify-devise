@@ -35,7 +35,7 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
         directory "config" do
           directory "locales" do
             file "devise.authy.en.yml" do
-              contains "Two factor authentication was enabled"
+              contains "Multi-factor authentication was enabled"
             end
           end
         end
@@ -46,18 +46,14 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
       devise_config = File.read(File.join(destination_root, "config", "initializers", "devise.rb"))
       expect(devise_config).to match("Devise Authy Authentication Extension")
       expect(devise_config).to match("# config.authy_remember_device = 1.month")
-      expect(devise_config).to match("# config.authy_enable_onetouch = false")
       expect(devise_config).to match("# config.authy_enable_qr_code = false")
     end
 
-    it "creates an authy initializer" do
+    it "does not creates an authy initializer" do
       expect(destination_root).to have_structure {
         directory "config" do
           directory "initializers" do
-            file "authy.rb" do
-              contains "Authy.api_key = ENV[\"AUTHY_API_KEY\"]\n"
-              contains "Authy.api_uri = \"https://api.authy.com/\""
-            end
+            no_file "authy.rb"
           end
         end
       }
@@ -100,8 +96,8 @@ RSpec.describe DeviseAuthy::Generators::InstallGenerator, type: :generator do
           directory "views" do
             directory "layouts" do
               file "application.html.erb" do
-                contains "<%=javascript_include_tag \"https://www.authy.com/form.authy.min.js\" %>"
-                contains "<%=stylesheet_link_tag \"https://www.authy.com/form.authy.min.css\" %>"
+                does_not_contain "<%=javascript_include_tag \"https://www.authy.com/form.authy.min.js\" %>"
+                does_not_contain "<%=stylesheet_link_tag \"https://www.authy.com/form.authy.min.css\" %>"
               end
             end
           end

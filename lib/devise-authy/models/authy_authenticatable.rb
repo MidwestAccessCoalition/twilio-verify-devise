@@ -4,6 +4,10 @@ module Devise
     module AuthyAuthenticatable
       extend ActiveSupport::Concern
 
+      included do
+        has_one :mfa_config, as: :resource
+      end
+
       def with_authy_authentication?(request)
         if self.authy_id.present? && self.authy_enabled
           return true
@@ -17,7 +21,7 @@ module Devise
           where(authy_id: authy_id).first
         end
 
-        Devise::Models.config(self, :authy_remember_device, :authy_enable_onetouch, :authy_enable_qr_code)
+        Devise::Models.config(self, :authy_remember_device, :authy_enable_qr_code)
       end
     end
   end
