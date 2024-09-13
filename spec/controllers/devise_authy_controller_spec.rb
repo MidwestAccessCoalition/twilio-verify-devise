@@ -27,7 +27,6 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     describe "with no user details in the session" do
       describe "#GET_verify_authy" do
         it "should redirect to the root_path" do
-          binding.break
           get :GET_verify_authy
           expect(response).to redirect_to(root_path)
         end
