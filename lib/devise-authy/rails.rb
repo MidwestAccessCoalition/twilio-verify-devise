@@ -15,7 +15,7 @@ module DeviseAuthy
       
       Devise.twilio_account_sid = ENV['TWILIO_ACCOUNT_SID'] if Devise.twilio_account_sid.nil?
       Devise.twilio_auth_token = ENV['TWILIO_AUTH_TOKEN'] if Devise.twilio_auth_token.nil?
-      Devise.twilio_service_sid = ENV['TWILIO_SERVICE_SID'] if Devise.twilio_service_sid.nil?
+      Devise.twilio_service_sid = ENV['TWILIO_VERIFY_SERVICE_SID'] if Devise.twilio_service_sid.nil?
     end
   end
 end
