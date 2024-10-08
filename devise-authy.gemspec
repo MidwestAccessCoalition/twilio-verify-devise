@@ -7,7 +7,7 @@ require "devise-authy/version"
 Gem::Specification.new do |spec|
   spec.name          = "devise-authy"
   spec.version       = DeviseAuthy::VERSION
-  spec.authors       = ["Midwest Access Coalition", "Contributors to Contributors to https://github.com/MidwestAccessCoalition/twilio-verify-devise", "Authy Inc."]
+  spec.authors       = ["Midwest Access Coalition", "Contributors to https://github.com/MidwestAccessCoalition/twilio-verify-devise", "Authy Inc."]
   spec.email         = [""]
 
   spec.summary       = %q{Deprecated: please see README for details}
