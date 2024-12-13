@@ -7,8 +7,8 @@ require "devise-authy/version"
 Gem::Specification.new do |spec|
   spec.name          = "devise-authy"
   spec.version       = DeviseAuthy::VERSION
-  spec.authors       = ["Authy Inc."]
-  spec.email         = ["support@authy.com"]
+  spec.authors       = ["Midwest Access Coalition", "Contributors to https://github.com/MidwestAccessCoalition/twilio-verify-devise", "Authy Inc."]
+  spec.email         = [""]
 
   spec.summary       = %q{Deprecated: please see README for details}
   spec.description   = %q{Authy plugin to add two factor authentication to Devise. This gem is deprecated, please see the README for details.}
