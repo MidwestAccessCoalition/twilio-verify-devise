@@ -47,7 +47,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "generator_spec", ">= 0.10.0"
   spec.add_development_dependency "database_cleaner", "~> 2.0"
-  spec.add_development_dependency "factory_bot_rails", "~> 5.1.1"
+  spec.add_development_dependency "factory_bot_rails", "~> 6.4.4"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "faker", "~> 3.2"
   spec.add_development_dependency "shoulda-matchers"
