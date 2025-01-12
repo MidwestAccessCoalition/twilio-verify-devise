@@ -23,9 +23,9 @@ jobs:
             ruby: 3.4
           - rails: rails_7 # minitest from this version doesn't supporter Ruby 3.4
             ruby: 3.4
-          - rails: rails_8
+          - rails: rails_8 # Rails 8 requires 3.2
             ruby: "3.0"
-          - rails: rails_8
+          - rails: rails_8 # Rails 8 requires 3.2
             ruby: 3.1
     env:
       BUNDLE_GEMFILE: gemfiles/${{matrix.rails}}__${{ matrix.twilio }}.gemfile
