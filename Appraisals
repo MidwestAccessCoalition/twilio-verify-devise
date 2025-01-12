@@ -3,6 +3,7 @@ appraise "rails-6--twilio-6" do
   gem "sqlite3", "~> 1.4"
   gem "twilio-ruby", "~> 6.9"
   gem "net-smtp"
+  gem "minitest", ">= 5.2"
 
   group :development, :test do
     gem 'factory_girl_rails', :require => false
@@ -16,6 +17,7 @@ appraise "rails-6--twilio-7" do
   gem "sqlite3", "~> 1.4"
   gem "twilio-ruby", "~> 7.0"
   gem "net-smtp"
+  gem "minitest", ">= 5.2"
 
   group :development, :test do
     gem 'factory_girl_rails', :require => false
@@ -29,6 +31,7 @@ appraise "rails-6-1--twilio-6" do
   gem "sqlite3", "~> 1.4"
   gem "net-smtp"
   gem "twilio-ruby", "~> 6.9"
+  gem "minitest", ">= 5.2"
 
   group :development, :test do
     gem 'factory_girl_rails', :require => false
@@ -42,6 +45,7 @@ appraise "rails-6-1--twilio-7" do
   gem "sqlite3", "~> 1.4"
   gem "net-smtp"
   gem "twilio-ruby", "~> 7.0"
+  gem "minitest", ">= 5.2"
 
   group :development, :test do
     gem 'factory_girl_rails', :require => false
@@ -55,6 +59,7 @@ appraise "rails-7--twilio-6" do
   gem "sqlite3", "~> 1.4"
   gem "net-smtp"
   gem "twilio-ruby", "~> 6.9"
+  gem "minitest", ">= 5.2"
 
   group :development, :test do
     gem 'factory_girl_rails', :require => false
@@ -68,6 +73,7 @@ appraise "rails-7--twilio-7" do
   gem "sqlite3", "~> 1.4"
   gem "net-smtp"
   gem "twilio-ruby", "~> 7.0"
+  gem "minitest", ">= 5.2"
 
   group :development, :test do
     gem 'factory_girl_rails', :require => false
