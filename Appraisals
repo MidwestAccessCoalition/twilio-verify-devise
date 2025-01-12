@@ -131,7 +131,7 @@ end
 
 appraise "rails-8--twilio-6" do
   gem "rails", "~> 8.0"
-  gem "sqlite3", "~> 1.4"
+  gem "sqlite3", "~> 2.1"
   gem "net-smtp"
   gem "twilio-ruby", "~> 6.9"
 
@@ -144,7 +144,7 @@ end
 
 appraise "rails-8--twilio-7" do
   gem "rails", "~> 8.0"
-  gem "sqlite3", "~> 1.4"
+  gem "sqlite3", "~> 2.1"
   gem "net-smtp"
   gem "twilio-ruby", "~> 7.0"
 
