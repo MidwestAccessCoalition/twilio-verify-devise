@@ -6,6 +6,7 @@ gem "rails", "~> 6.0.0"
 gem "sqlite3", "~> 1.4"
 gem "twilio-ruby", "~> 6.9"
 gem "net-smtp"
+gem "concurrent-ruby", "1.3.4"
 
 group :development, :test do
   gem "factory_girl_rails", require: false
