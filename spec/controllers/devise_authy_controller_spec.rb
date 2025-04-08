@@ -68,8 +68,8 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
     describe "POST #verify_authy" do
       let(:verify_success) { 'approved' }
       let(:verify_failure) { 'invalid' }
-      let(:valid_verify_token) { rand(0..999999).to_s.rjust(6, '0') }
-      let(:invalid_verify_token) { rand(0..999999).to_s.rjust(6, '0') }
+      let(:valid_verify_token) { SecureRandom.rand(0..999999).to_s.rjust(6, '0') }
+      let(:invalid_verify_token) { SecureRandom.rand(0..999999).to_s.rjust(6, '0') }
       let(:user) { create(:authy_user)}
 
       describe "with a valid token" do 
