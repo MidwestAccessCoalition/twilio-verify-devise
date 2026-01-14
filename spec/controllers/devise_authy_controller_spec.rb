@@ -1,5 +1,24 @@
 # frozen_string_literal: true
 
+
+def has_img_src_with_csp?(headers)
+  require 'csp_parser'
+  csp_string = headers&.dig('Content-Security-Policy')
+  if csp_string
+    csp = CSPParser.parse(csp_string)
+    img_src = csp.directives.find{|d| d.name == 'img-src'}
+    if img_src
+      img_src.value.sources.includes {|s| s.value == 'data:'}
+    end
+  end
+end
+
+def have_img_src_with_csp
+  have_attributes(headers: an_instance_of(Hash).and(satisfy do |headers|
+    has_img_src_with_csp?(headers)
+  end))
+end
+
 RSpec.describe Devise::DeviseAuthyController, type: :controller do
   let(:user) { create(:authy_user) }
   before(:each) { request.env["devise.mapping"] = Devise.mappings[:user] }
@@ -398,6 +417,7 @@ RSpec.describe Devise::DeviseAuthyController, type: :controller do
               get :GET_verify_authy_installation
               expect(response).to render_template('verify_authy_installation')
               expect(assigns[:verify_qr_code]).to_not be_nil
+              expect(response).to have_img_src_with_csp
             end
           end
         end
